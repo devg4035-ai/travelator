@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Booking - Travelator App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: #764ba2;
+        }
+
+        .search-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .trip-type {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .trip-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .trip-option input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group select,
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            grid-column: 1 / -1;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .return-date-group {
+            display: none;
+        }
+
+        .return-date-group.show {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .flight-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .flight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .flight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .airline {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .flight-route {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .time {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .duration {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .flight-details {
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+
+        .book-btn:hover {
+            background: #764ba2;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 10px;
+            color: #666;
+        }
+
+        .destination-section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .destination-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .destination-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .destination-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .destination-country {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .destination-info {
+            font-size: 13px;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .attraction-list {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+
+            .destinations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .no-search {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 10px;
+            color: #666;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">✈️ Travelator Flight Booking</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
+                <button class="back-btn" style="background: #667eea;" onclick="viewMyBookings()">My Bookings</button>
+            </div>
+        </header>
+
+        <div class="alert" id="alert"></div>
+
+        <div class="search-container">
+            <h2 style="margin-bottom: 25px; color: #333;">Search Flights</h2>
+
+            <div class="trip-type">
+                <label class="trip-option">
+                    <input type="radio" name="tripType" value="oneWay" checked onchange="updateReturnDate()">
+                    <span>One Way</span>
+                </label>
+                <label class="trip-option">
+                    <input type="radio" name="tripType" value="roundTrip" onchange="updateReturnDate()">
+                    <span>Round Trip</span>
+                </label>
+            </div>
+
+            <div class="search-grid">
+                <div class="form-group">
+                    <label for="flightType">Flight Type</label>
+                    <select id="flightType" onchange="updateOrigins()">
+                        <option value="">Select flight type</option>
+                        <option value="domestic">Domestic (India)</option>
+                        <option value="international">International</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="origin">From</label>
+                    <select id="origin">
+                        <option value="">Select origin</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="destination">To</label>
+                    <select id="destination">
+                        <option value="">Select destination</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="departDate">Depart Date</label>
+                    <input type="date" id="departDate" required>
+                </div>
+
+                <div class="form-group return-date-group" id="returnDateGroup">
+                    <label for="returnDate">Return Date</label>
+                    <input type="date" id="returnDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="passengers">Passengers</label>
+                    <select id="passengers">
+                        <option value="1">1 Passenger</option>
+                        <option value="2">2 Passengers</option>
+                        <option value="3">3 Passengers</option>
+                        <option value="4">4 Passengers</option>
+                        <option value="5">5+ Passengers</option>
+                    </select>
+                </div>
+
+                <button class="search-btn" onclick="searchFlights()">Search Flights</button>
+            </div>
+        </div>
+
+        <div id="resultsContainer"></div>
+
+        <div class="destination-section">
+            <h2 class="section-title">🌍 Popular Destinations</h2>
+            <div class="destinations-grid" id="destinationsGrid"></div>
+        </div>
+    </div>
+
+    <script src="js/indian-states.js"></script>
+    <script src="js/international-destinations.js"></script>
+    <script src="js/auth.js"></script>
+
+    <script>
+        // Set minimum date to today
+        document.getElementById('departDate').min = new Date().toISOString().split('T')[0];
+
+        // Mock flight data generator
+        const airlines = ['Air India', 'IndiGo', 'Spice Jet', 'Vistara', 'GoAir', 'Emirates', 'Qatar Airways', 'Turkish Airlines'];
+        const classes = ['Economy', 'Premium Economy', 'Business'];
+
+        function generateFlightResults(origin, destination, date, passengers) {
+            const flights = [];
+            const classDistribution = [60, 30, 10]; // percentage distribution
+            
+            for (let i = 0; i < 6; i++) {
+                const classIndex = Math.random() * 100 < classDistribution[0] ? 0 : 
+                                  Math.random() * 100 < (classDistribution[0] + classDistribution[1]) ? 1 : 2;
+                
+                flights.push({
+                    id: i + 1,
+                    airline: airlines[Math.floor(Math.random() * airlines.length)],
+                    departure: `${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+                    arrival: `${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+                    duration: `${Math.floor(Math.random() * 6) + 1}h ${Math.floor(Math.random() * 60)}m`,
+                    stops: Math.floor(Math.random() * 3),
+                    class: classes[classIndex],
+                    price: (Math.floor(Math.random() * 40) + 10) * 100 + Math.floor(Math.random() * 99),
+                    seats: Math.floor(Math.random() * 50) + 10
+                });
+            }
+            return flights;
+        }
+
+        function updateReturnDate() {
+            const roundTrip = document.querySelector('input[name="tripType"]:checked').value === 'roundTrip';
+            const returnDateGroup = document.getElementById('returnDateGroup');
+            
+            if (roundTrip) {
+                returnDateGroup.classList.add('show');
+                document.getElementById('returnDate').required = true;
+            } else {
+                returnDateGroup.classList.remove('show');
+                document.getElementById('returnDate').required = false;
+            }
+        }
+
+        function updateOrigins() {
+            const flightType = document.getElementById('flightType').value;
+            const originSelect = document.getElementById('origin');
+            const destinationSelect = document.getElementById('destination');
+            
+            originSelect.innerHTML = '<option value="">Select origin</option>';
+            destinationSelect.innerHTML = '<option value="">Select destination</option>';
+
+            if (flightType === 'domestic') {
+                // Add Indian states
+                indianStatesDB.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state.name;
+                    option.textContent = `${state.name} (${state.capital})`;
+                    originSelect.appendChild(option);
+                });
+
+                destinationSelect.innerHTML = '<option value="">Select destination</option>';
+                indianStatesDB.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state.name;
+                    option.textContent = `${state.name} (${state.capital})`;
+                    destinationSelect.appendChild(option);
+                });
+            } else if (flightType === 'international') {
+                // Add international destinations
+                internationalDestinationsDB.forEach(dest => {
+                    const option = document.createElement('option');
+                    option.value = dest.name;
+                    option.textContent = `${dest.name}, ${dest.country}`;
+                    originSelect.appendChild(option);
+                });
+
+                destinationSelect.innerHTML = '<option value="">Select destination</option>';
+                internationalDestinationsDB.forEach(dest => {
+                    const option = document.createElement('option');
+                    option.value = dest.name;
+                    option.textContent = `${dest.name}, ${dest.country}`;
+                    destinationSelect.appendChild(option);
+                });
+            }
+        }
+
+        function searchFlights() {
+            const flightType = document.getElementById('flightType').value;
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const departDate = document.getElementById('departDate').value;
+            const passengers = document.getElementById('passengers').value;
+
+            if (!flightType || !origin || !destination || !departDate) {
+                showAlert('Please fill all required fields', 'error');
+                return;
+            }
+
+            if (origin === destination) {
+                showAlert('Origin and destination cannot be the same', 'error');
+                return;
+            }
+
+            // Generate mock flights
+            const flights = generateFlightResults(origin, destination, departDate, passengers);
+            displayFlights(flights, origin, destination, departDate);
+        }
+
+        function displayFlights(flights, origin, destination, date) {
+            const container = document.getElementById('resultsContainer');
+            
+            // helper to escape double quotes and ampersands for safe insertion into data attributes
+            const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+
+            let html = `<div class="search-container" style="margin-top: 30px;">
+                <h2 style="color: #333; margin-bottom: 20px;">
+                    Search Results: ${origin} → ${destination} (${date})
+                </h2>`;
+
+            if (flights.length === 0) {
+                html += '<div class="no-results">No flights found. Try different dates or locations.</div>';
+            } else {
+                html += '<div class="results-container">';
+                flights.forEach(flight => {
+            html += `
+                        <div class="flight-card">
+                            <div class="flight-header">
+                                <div class="airline">${flight.airline}</div>
+                                <div class="price">₹${flight.price.toLocaleString()}</div>
+                            </div>
+                            <div class="flight-route">
+                                <div>
+                                    <div class="time">${flight.departure}</div>
+                                    <div style="font-size: 12px; color: #666;">${origin}</div>
+                                </div>
+                                <div class="duration">
+                                    <div>${flight.duration}</div>
+                                    <div>${flight.stops === 0 ? 'Non-stop' : flight.stops + ' Stop(s)'}</div>
+                                </div>
+                                <div>
+                                    <div class="time">${flight.arrival}</div>
+                                    <div style="font-size: 12px; color: #666;">${destination}</div>
+                                </div>
+                            </div>
+                            <div class="flight-details">
+                                <div class="detail-row">
+                                    <span>Class:</span>
+                                    <strong>${flight.class}</strong>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Available Seats:</span>
+                                    <strong>${flight.seats}</strong>
+                                </div>
+                            </div>
+                            <button class="book-btn" data-flight-id="${flight.id}" data-airline="${esc(flight.airline)}" data-price="${flight.price}">Book Now</button>
+                        </div>
+                    `;
+                });
+                    html += '</div>';
+                }
+                html += '</div>';
+                container.innerHTML = html;
+
+                // Attach click handlers to generated Book buttons
+                const decodeHtml = (html) => {
+                    const txt = document.createElement('textarea');
+                    txt.innerHTML = html;
+                    return txt.value;
+                };
+
+                const btns = container.querySelectorAll('.book-btn');
+                btns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = Number(this.getAttribute('data-flight-id'));
+                        const airline = decodeHtml(this.getAttribute('data-airline'));
+                        const price = Number(this.getAttribute('data-price'));
+                        try {
+                            bookFlight(id, airline, price);
+                        } catch (err) {
+                            console.error('Error booking flight:', err);
+                            showAlert('Unable to complete booking', 'error');
+                        }
+                    });
+                });
+        }
+
+        function bookFlight(flightId, airline, price) {
+            // Persist flight booking to localStorage
+            const booking = {
+                id: Date.now(),
+                flightId,
+                airline,
+                price: Number(price),
+                bookedAt: new Date().toISOString()
+            };
+            const existing = JSON.parse(localStorage.getItem('flightBookings') || '[]');
+            existing.push(booking);
+            localStorage.setItem('flightBookings', JSON.stringify(existing));
+
+            // Update global stats (hotels/flights/rewards) stored in localStorage
+            const gsRaw = localStorage.getItem('globalStats');
+            const gs = gsRaw ? JSON.parse(gsRaw) : { hotels: 0, flights: 0, rewards: 0 };
+            gs.flights = (gs.flights || 0) + 1;
+            // Reward points: simple rule 1 point per ₹100
+            gs.rewards = (gs.rewards || 0) + Math.round(Number(price) / 100);
+            localStorage.setItem('globalStats', JSON.stringify(gs));
+
+            showAlert(`Flight with ${airline} has been added to your cart! Proceeding to payment...`, 'success');
+            setTimeout(() => {
+                alert(`Booking confirmed!\nAirline: ${airline}\nPrice: ₹${price}\n\nThis is a demo. In real app, you would proceed to payment.`);
+            }, 1000);
+        }
+
+        // Show user's flight bookings (My Bookings)
+        function viewMyBookings() {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `
+                <div class="search-container" style="margin-top: 30px;">
+                    <h2 style="color: #333; margin-bottom: 20px;">My Flight Bookings</h2>
+                    <div id="flightBookingsList"></div>
+                    <div style="margin-top: 15px;">
+                        <button class="search-btn" onclick="location.reload()">Back to Search</button>
+                    </div>
+                </div>
+            `;
+            renderFlightBookings();
+        }
+
+        function renderFlightBookings() {
+            const list = document.getElementById('flightBookingsList');
+            const bookings = JSON.parse(localStorage.getItem('flightBookings') || '[]');
+            if (!bookings || bookings.length === 0) {
+                list.innerHTML = '<div class="no-results">No bookings yet. Search and book flights to see them here.</div>';
+                return;
+            }
+
+            let html = '<div class="results-container">';
+            bookings.forEach(b => {
+                const bookedAt = b.bookedAt ? new Date(b.bookedAt).toLocaleString() : '';
+                html += `
+                    <div class="flight-card">
+                        <div class="flight-header">
+                            <div class="airline">${b.airline}</div>
+                            <div class="price">₹${Number(b.price).toLocaleString()}</div>
+                        </div>
+                        <div class="flight-details">
+                            <div class="detail-row">
+                                <span>Booked At:</span>
+                                <strong>${bookedAt}</strong>
+                            </div>
+                        </div>
+                        <button class="book-btn cancel-booking" data-booking-id="${b.id}" style="background:#d9534f;">Cancel Booking</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            list.innerHTML = html;
+
+            // Attach cancel handlers
+            const cancelBtns = list.querySelectorAll('.cancel-booking');
+            cancelBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = Number(this.getAttribute('data-booking-id'));
+                    cancelFlightBooking(id);
+                });
+            });
+        }
+
+        function cancelFlightBooking(id) {
+            let bookings = JSON.parse(localStorage.getItem('flightBookings') || '[]');
+            const idx = bookings.findIndex(b => b.id === id);
+            if (idx === -1) {
+                showAlert('Booking not found', 'error');
+                return;
+            }
+            const [removed] = bookings.splice(idx, 1);
+            localStorage.setItem('flightBookings', JSON.stringify(bookings));
+
+            // Update globalStats conservatively
+            const gsRaw = localStorage.getItem('globalStats');
+            const gs = gsRaw ? JSON.parse(gsRaw) : { hotels: 0, flights: 0, rewards: 0 };
+            gs.flights = Math.max(0, (gs.flights || 0) - 1);
+            gs.rewards = Math.max(0, (gs.rewards || 0) - Math.round(Number(removed.price) / 100));
+            localStorage.setItem('globalStats', JSON.stringify(gs));
+
+            showAlert('Booking cancelled', 'success');
+            renderFlightBookings();
+        }
+
+        function displayDestinations() {
+            const grid = document.getElementById('destinationsGrid');
+            let html = '';
+
+            // Show mix of popular destinations
+            const popularDestinations = internationalDestinationsDB.filter(d => 
+                ['Paris', 'Tokyo', 'Dubai', 'Bangkok', 'Singapore', 'Bali', 'Maldives', 'Sri Lanka', 'Nepal', 'Istanbul', 'London', 'New York'].includes(d.name)
+            );
+
+            popularDestinations.forEach(dest => {
+                const attractions = dest.attractions.slice(0, 2).join(', ');
+                html += `
+                    <div class="destination-card" onclick="selectDestination('${dest.name}')">
+                        <div class="destination-name">${dest.name}</div>
+                        <div class="destination-country">${dest.country}</div>
+                        <div class="destination-info">
+                            <strong>Region:</strong> ${dest.region}
+                        </div>
+                        <div class="destination-info">
+                            <strong>Flight Time:</strong> ${dest.flightTimeFromDelhi}
+                        </div>
+                        <div class="destination-info">
+                            <strong>Best Time:</strong> ${dest.bestTime}
+                        </div>
+                        <div class="destination-info">
+                            <strong>Avg Cost:</strong> ${dest.avgCostPerDay}
+                        </div>
+                        <div class="attraction-list">
+                            <strong>Attractions:</strong> ${attractions}...
+                        </div>
+                        <div class="destination-info" style="margin-top: 10px; color: ${dest.visaRequired ? '#d9534f' : '#5cb85c'};">
+                            ${dest.visaRequired ? '✓ Visa Required' : '✓ Visa-Free for Indians'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function selectDestination(destName) {
+            document.getElementById('flightType').value = 'international';
+            updateOrigins();
+            document.getElementById('destination').value = destName;
+            document.getElementById('destination').focus();
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 4000);
+        }
+
+        function goBackToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            displayDestinations();
+        });
+    </script>
+</body>
+</html>

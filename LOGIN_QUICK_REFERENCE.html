@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System - Quick Reference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subtitle {
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .demo-accounts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .account-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .account-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .account-card p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .code {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .feature-card h3 {
+            color: #28a745;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .flow-diagram {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .flow-step {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin: 0 10px;
+            font-weight: 600;
+        }
+        
+        .flow-arrow {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+        
+        .security-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+        
+        .security-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-left: 4px solid #ffc107;
+            color: #666;
+        }
+        
+        .security-list li:before {
+            content: "🔒 ";
+            margin-right: 10px;
+        }
+        
+        .password-requirements {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .password-requirements h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .password-requirements ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+        
+        .password-requirements li {
+            margin: 5px 0;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-locked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .demo-accounts {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-diagram {
+                overflow-x: auto;
+            }
+            
+            .comparison-table {
+                font-size: 0.9em;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Login System - Quick Reference</h1>
+        <p class="subtitle">Enhanced authentication system for Travelator App</p>
+        
+        <div class="section">
+            <h2>📋 Demo Accounts</h2>
+            <div class="demo-accounts">
+                <div class="account-card">
+                    <h3>Demo User Account</h3>
+                    <p><span class="label">Email:</span></p>
+                    <p class="code">demo@travelator.com</p>
+                    <p><span class="label">Password:</span></p>
+                    <p class="code">password123</p>
+                </div>
+                <div class="account-card">
+                    <h3>Jane's Account</h3>
+                    <p><span class="label">Email:</span></p>
+                    <p class="code">jane@travelator.com</p>
+                    <p><span class="label">Password:</span></p>
+                    <p class="code">password456</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>✨ Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>✓ User Registration</h3>
+                    <p>Create new accounts with email validation and password strength checking</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✓ Secure Login</h3>
+                    <p>Email/password authentication with session management</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✓ Password Reset</h3>
+                    <p>Request password reset via email with secure token</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✓ Account Lockout</h3>
+                    <p>5 failed attempts = 15 minute lockout for security</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✓ Session Management</h3>
+                    <p>Automatic timeout after 1 hour of inactivity</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✓ Remember Me</h3>
+                    <p>Stay logged in across browser sessions</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔄 Authentication Flow</h2>
+            <div class="flow-diagram">
+                <span class="flow-step">User Input</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Validation</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Authentication</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Session Created</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Redirect to Dashboard</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔒 Password Requirements</h2>
+            <div class="password-requirements">
+                <h3>Your password must contain:</h3>
+                <ul>
+                    <li>✓ At least 8 characters</li>
+                    <li>✓ At least one uppercase letter (A-Z)</li>
+                    <li>✓ At least one lowercase letter (a-z)</li>
+                    <li>✓ At least one number (0-9)</li>
+                    <li>✓ At least one special character (!@#$%^&*)</li>
+                </ul>
+                <p><strong>Example:</strong> <span class="code">Travelator@123</span></p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🛡️ Security Features</h2>
+            <ul class="security-list">
+                <li>Email format validation</li>
+                <li>Password hashing</li>
+                <li>Failed login attempt tracking</li>
+                <li>Account lockout mechanism</li>
+                <li>Session expiration</li>
+                <li>Email uniqueness validation</li>
+                <li>Password confirmation matching</li>
+                <li>Session storage in localStorage</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>📊 User Actions & Flows</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Steps</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Login</strong></td>
+                        <td>Enter email → Enter password → Click Login</td>
+                        <td><span class="status-badge status-active">Session Created</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sign Up</strong></td>
+                        <td>Click Sign Up → Fill form → Create Account</td>
+                        <td><span class="status-badge status-active">Auto Login</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Logout</strong></td>
+                        <td>Click Logout button</td>
+                        <td><span class="status-badge status-active">Session Ended</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Password Reset</strong></td>
+                        <td>Forgot Password → Enter email → Check email</td>
+                        <td><span class="status-badge status-active">Token Sent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Failed Login x5</strong></td>
+                        <td>Invalid password 5 times</td>
+                        <td><span class="status-badge status-locked">Account Locked 15 min</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>💾 Data Storage</h2>
+            <p>All authentication data is stored locally in your browser:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><span class="code">travelator_users</span> - User database</li>
+                <li><span class="code">travelator_session</span> - Current session</li>
+                <li><span class="code">login_lockout_[email]</span> - Failed attempt tracking</li>
+            </ul>
+            <p style="margin-top: 10px; color: #666;"><strong>Note:</strong> For production, use a backend database instead of localStorage.</p>
+        </div>
+        
+        <div class="section">
+            <h2>🚀 Getting Started</h2>
+            <ol style="margin-left: 20px; line-height: 1.8;">
+                <li>Open <strong>index.html</strong> in your browser</li>
+                <li>Try the demo account: demo@travelator.com / password123</li>
+                <li>Explore the dashboard</li>
+                <li>Click "Sign up here" to create your own account</li>
+                <li>Try different passwords to see strength indicator</li>
+                <li>Test password reset functionality</li>
+                <li>Try wrong password 5 times to see account lockout</li>
+            </ol>
+        </div>
+        
+        <div class="section">
+            <h2>📝 File Reference</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>js/auth.js</strong></td>
+                        <td>Main authentication system</td>
+                        <td><span class="status-badge status-active">Core</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>js/login.js</strong></td>
+                        <td>Login page interaction</td>
+                        <td><span class="status-badge status-active">Core</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>index.html</strong></td>
+                        <td>Login/signup/reset pages</td>
+                        <td><span class="status-badge status-active">UI</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AUTHENTICATION.md</strong></td>
+                        <td>Detailed documentation</td>
+                        <td><span class="status-badge status-active">Doc</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Testing Scenarios</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">Try these test cases:</h3>
+                
+                <div style="margin: 15px 0;">
+                    <strong>✓ Test 1: Valid Login</strong><br>
+                    <span style="color: #666; margin-left: 20px; display: block;">Enter demo@travelator.com and password123 → Should redirect to dashboard</span>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <strong>✓ Test 2: Invalid Password</strong><br>
+                    <span style="color: #666; margin-left: 20px; display: block;">Enter correct email but wrong password → Should show error</span>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <strong>✓ Test 3: Account Lockout</strong><br>
+                    <span style="color: #666; margin-left: 20px; display: block;">Try 5 failed logins → Should see lockout message</span>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <strong>✓ Test 4: New Registration</strong><br>
+                    <span style="color: #666; margin-left: 20px; display: block;">Click Sign Up → Fill form → Should auto-login</span>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <strong>✓ Test 5: Password Strength</strong><br>
+                    <span style="color: #666; margin-left: 20px; display: block;">Type passwords → Watch strength indicator update in real-time</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>❓ FAQ</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                <div style="margin-bottom: 20px;">
+                    <strong>Q: Can I use any password for demo login?</strong><br>
+                    <span style="color: #666;">A: No, you must use the exact demo credentials provided above. For new accounts, passwords must meet the requirements.</span>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong>Q: What happens if I clear browser cache?</strong><br>
+                    <span style="color: #666;">A: You'll be logged out as all data is stored in localStorage. You'll need to login again.</span>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong>Q: How long does the session last?</strong><br>
+                    <span style="color: #666;">A: Sessions last 1 hour of inactivity. After that, you need to login again.</span>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong>Q: Can I change the account lockout time?</strong><br>
+                    <span style="color: #666;">A: Yes! Edit the lockoutDuration value in js/auth.js (currently 15 minutes).</span>
+                </div>
+                
+                <div>
+                    <strong>Q: Is this production-ready?</strong><br>
+                    <span style="color: #666;">A: This is a demo with enhanced security. For production, use bcrypt, JWT, and backend authentication.</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="window.location.href='index.html'">
+                🚀 Go to Login
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='AUTHENTICATION.md'">
+                📖 Full Documentation
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='README.md'">
+                📚 Project README
+            </button>
+        </div>
+    </div>
+</body>
+</html>

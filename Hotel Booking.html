@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking - Travelator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg,#667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2405d1;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .my-bookings-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: #764ba2;
+        }
+
+        .search-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        select, input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search-btn {
+            grid-column: 1 / -1;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #072496;
+        }
+
+        .hotel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .hotel-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .hotel-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .hotel-img {
+            height: 200px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+
+        .hotel-info {
+            padding: 20px;
+        }
+
+        .hotel-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .rating {
+            color: #fdbb2d;
+            margin-bottom: 10px;
+        }
+
+        .price-tag {
+            font-size: 22px;
+            color: #b21f1f;
+            font-weight: bold;
+        }
+
+        .amenities {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .book-now {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo">🏨 Travelator Hotels India</div>
+            <div class="header-actions">
+                <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
+                <button class="my-bookings-btn" onclick="viewMyBookings()">My Bookings</button>
+            </div>
+    </header>
+
+    <div id="alert" class="alert" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb;"></div>
+
+    <div class="search-container">
+        <h2 style="margin-bottom: 20px;">Find the Perfect Stay</h2>
+        <div class="search-grid">
+            <div class="form-group">
+                <label>City</label>
+                <select id="citySelect">
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Udaipur">Udaipur</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Bangalore">Bangalore</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Check-in</label>
+                <input type="date" id="checkin">
+            </div>
+            <div class="form-group">
+                <label>Check-out</label>
+                <input type="date" id="checkout">
+            </div>
+            <div class="form-group">
+                <label>Room Type</label>
+                <select id="roomType">
+                    <option value="Deluxe">Deluxe Room</option>
+                    <option value="Luxury">Luxury Suite</option>
+                    <option value="Presidential">Presidential Suite</option>
+                </select>
+            </div>
+            <button class="search-btn" onclick="searchHotels()">Search Available Hotels</button>
+        </div>
+    </div>
+
+    <div class="hotel-grid" id="hotelResults">
+        </div>
+</div>
+
+<script>
+    // Database of Famous Indian Hotels
+    const hotelDB = [
+        {
+            name: "The Taj Mahal Palace",
+            city: "Mumbai",
+            rating: 5,
+            price: 25000,
+            emoji: "🏰",
+            amenities: ["Sea View", "Heritage", "Spa", "Pool"],
+            desc: "Iconic landmark facing the Gateway of India."
+        },
+        {
+            name: "ITC Maurya",
+            city: "Delhi",
+            rating: 5,
+            price: 18000,
+            emoji: "🏛️",
+            amenities: ["Fine Dining", "Gym", "Luxury Spa"],
+            desc: "Known for its Mauryan architecture and world-class kebabs."
+        },
+        {
+            name: "The Oberoi Udaivilas",
+            city: "Udaipur",
+            rating: 5,
+            price: 45000,
+            emoji: "🛶",
+            amenities: ["Lake View", "Private Pool", "Royal Service"],
+            desc: "Consistently ranked as one of the best hotels in the world."
+        },
+        {
+            name: "Taj Exotica Resort & Spa",
+            city: "Goa",
+            rating: 5,
+            price: 22000,
+            emoji: "🏖️",
+            amenities: ["Beach Front", "Bar", "Golf Course"],
+            desc: "Mediterranean-style resort on the white sands of Benaulim."
+        },
+        {
+            name: "The Leela Palace",
+            city: "Bangalore",
+            rating: 5,
+            price: 16000,
+            emoji: "🏙️",
+            amenities: ["Garden", "Tech Hub", "Business Lounge"],
+            desc: "Inspired by the Royal Palace of Mysore."
+        },
+        {
+            name: "Trident Hotel",
+            city: "Mumbai",
+            rating: 4,
+            price: 12000,
+            emoji: "🏨",
+            amenities: ["Marine Drive View", "Pool", "Cafe"],
+            desc: "Perfect blend of luxury and convenience."
+        }
+    ];
+
+    function searchHotels() {
+        const city = document.getElementById('citySelect').value;
+        const results = hotelDB.filter(h => h.city === city);
+        displayHotels(results);
+    }
+
+    function displayHotels(hotels) {
+        const grid = document.getElementById('hotelResults');
+        grid.innerHTML = '';
+
+        if(hotels.length === 0) {
+            grid.innerHTML = '<div style="color: white; grid-column: 1/-1; text-align: center;">No hotels found for this city.</div>';
+            return;
+        }
+
+        hotels.forEach(h => {
+            const card = document.createElement('div');
+            card.className = 'hotel-card';
+            card.innerHTML = `
+                <div class="hotel-img">${h.emoji}</div>
+                <div class="hotel-info">
+                    <div class="hotel-name">${h.name}</div>
+                    <div class="rating">${'★'.repeat(h.rating)}</div>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;">${h.desc}</p>
+                    <div class="amenities">
+                        ${h.amenities.map(a => `<span style="background: #f0f0f0; padding: 2px 8px; border-radius: 10px;">${a}</span>`).join('')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                        <div class="price-tag">₹${h.price.toLocaleString()}<span style="font-size: 12px; color: #666;">/night</span></div>
+                        <button class="book-now" onclick="confirmBooking('${h.name}')">Book Now</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function confirmBooking(name) {
+        // Find hotel details if available
+        const hotel = hotelDB.find(h => h.name === name) || { name };
+        const checkin = document.getElementById('checkin') ? document.getElementById('checkin').value : '';
+        const checkout = document.getElementById('checkout') ? document.getElementById('checkout').value : '';
+
+        // Create booking object and persist to localStorage
+        const booking = {
+            id: Date.now(),
+            name: hotel.name,
+            city: hotel.city || '',
+            price: hotel.price || null,
+            checkin,
+            checkout,
+            bookedAt: new Date().toISOString()
+        };
+
+    const existing = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+    existing.push(booking);
+    localStorage.setItem('hotelBookings', JSON.stringify(existing));
+
+    // Update global stats
+    const gsRaw = localStorage.getItem('globalStats');
+    const gs = gsRaw ? JSON.parse(gsRaw) : { hotels: 0, flights: 0, rewards: 0 };
+    gs.hotels = (gs.hotels || 0) + 1;
+    // Reward points: simple rule 1 point per ₹100
+    gs.rewards = (gs.rewards || 0) + Math.round((hotel.price || 0) / 100);
+    localStorage.setItem('globalStats', JSON.stringify(gs));
+
+    // Show confirmation to the user
+    const alertBox = document.getElementById('alert');
+    alertBox.textContent = `Success! Your room at ${name} has been reserved.`;
+    alertBox.style.display = 'block';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
+    }
+
+    // Show user's bookings stored in localStorage
+    function viewMyBookings() {
+        const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+        const grid = document.getElementById('hotelResults');
+        grid.innerHTML = '';
+
+        if (!bookings.length) {
+            grid.innerHTML = '<div style="color: white; grid-column: 1/-1; text-align: center;">You have no bookings yet.</div>';
+            return;
+        }
+
+        // Render each booking as a card
+        bookings.reverse().forEach(b => {
+            const card = document.createElement('div');
+            card.className = 'hotel-card';
+            card.innerHTML = `
+                <div class="hotel-img">📄</div>
+                <div class="hotel-info">
+                    <div class="hotel-name">${b.name}</div>
+                    <div style="color:#666; margin:6px 0;">${b.city}</div>
+                    <div class="price-tag">${b.price ? '₹' + b.price.toLocaleString() : 'Price N/A'}</div>
+                    <p style="font-size:13px; color:#666; margin:8px 0;">Check-in: ${b.checkin || '—'} | Check-out: ${b.checkout || '—'}</p>
+                    <p style="font-size:12px; color:#666;">Booked on: ${new Date(b.bookedAt).toLocaleString()}</p>
+                    <div style="margin-top:12px; display:flex; gap:10px;">
+                        <button class="book-now" onclick="viewHotelDetails(${b.id})">Details</button>
+                        <button style="background:#dc3545; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="cancelBooking(${b.id})">Cancel Booking</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Scroll to the bookings area
+        window.scrollTo({ top: grid.offsetTop - 20, behavior: 'smooth' });
+    }
+
+    // Cancel a booking by id
+    function cancelBooking(id) {
+        if (!confirm('Are you sure you want to cancel this booking?')) return;
+        let bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+        const beforeCount = bookings.length;
+        bookings = bookings.filter(b => b.id !== id);
+        localStorage.setItem('hotelBookings', JSON.stringify(bookings));
+
+        // Show feedback
+        const alertBox = document.getElementById('alert');
+        alertBox.textContent = 'Booking cancelled successfully.';
+        alertBox.style.display = 'block';
+        setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
+
+        // Refresh view
+        viewMyBookings();
+    }
+
+    // Optional: show details (placeholder)
+    function viewHotelDetails(id) {
+        const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+        const b = bookings.find(x => x.id === id);
+        if (b) {
+            alert(`Booking details:\nHotel: ${b.name}\nCity: ${b.city}\nCheck-in: ${b.checkin || '—'}\nCheck-out: ${b.checkout || '—'}\nBooked on: ${new Date(b.bookedAt).toLocaleString()}`);
+        } else {
+            alert('Booking not found');
+        }
+    }
+
+    function goBackToDashboard() {
+            window.location.href = 'dashboard.html';
+    }
+
+    // Load all on start
+    window.onload = () => displayHotels(hotelDB);
+</script>
+
+</body>
+</html>

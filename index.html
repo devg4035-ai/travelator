@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travelator App - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <h1>✈️ Travelator</h1>
+                <p>Your Travel Companion</p>
+            </div>
+            
+            <!-- Alerts -->
+            <div id="alertContainer"></div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="login-form auth-form active">
+                <h2>Welcome Back</h2>
+                
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="Enter any valid email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="btn-login">Login</button>
+                
+                <div class="demo-credentials">
+                    <small><strong>Quick Access:</strong><br>
+                    Use any valid email address and any password to login</small>
+                </div>
+            </form>
+            
+            <!-- Sign Up Form -->
+            <form id="signupForm" class="login-form auth-form">
+                <h2>Create Account</h2>
+                
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" placeholder="Your full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="Your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="At least 8 characters" required>
+                    <div class="password-strength" id="passwordStrength"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Re-enter password" required>
+                </div>
+                
+                <button type="submit" class="btn-login">Create Account</button>
+            </form>
+            
+            <!-- Password Reset Form -->
+            <form id="resetForm" class="login-form auth-form">
+                <h2>Reset Password</h2>
+                
+                <div class="form-group">
+                    <label for="resetEmail">Email Address</label>
+                    <input type="email" id="resetEmail" placeholder="Enter your registered email" required>
+                </div>
+                
+                <p class="reset-info">We'll send you a link to reset your password. Check your email.</p>
+                
+                <button type="submit" class="btn-login">Send Reset Link</button>
+            </form>
+            
+            <div class="login-footer">
+                <div id="authToggle">
+                    <p>Don't have an account? <a href="#" class="auth-toggle-link" data-form="signup">Sign up here</a></p>
+                </div>
+                <div id="loginToggle" style="display: none;">
+                    <p>Already have an account? <a href="#" class="auth-toggle-link" data-form="login">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>

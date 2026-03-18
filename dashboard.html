@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travelator App - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>🧳 Travelator</h2>
+                <button class="menu-toggle">☰</button>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a></li>
+                <li><a href="#hotels" class="nav-link" data-section="hotels" onclick="location.href='Hotel Booking.html'">Hotel Booking</a></li>
+                <li><a href="#flights" class="nav-link" data-section="flights" onclick="location.href='flights.html'">Flight Booking</a></li>
+                <li><a href="#zones" class="nav-link" data-section="zones">Zone Alerts</a></li>
+                <li><a href="#translator" class="nav-link" data-section="translator" onclick="location.href='translates.html'">Translator</a></li>
+                <li><a href="#profile" class="nav-link" data-section="profile" onclick="location.href='profile.html'">Profile</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">Logout</button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Welcome to Travelator</h1>
+                </div>
+                <div class="header-right">
+                    <div class="language-selector">
+                        <select id="languageSelect">
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="zh">中文</option>
+                        </select>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://via.placeholder.com/40" alt="User" class="user-avatar">
+                        <span id="userName">You</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="welcome-banner">
+                    <h2 data-translate="welcome">Welcome Back!</h2>
+                    <p data-translate="subtitle">Explore amazing travel experiences</p>
+                </div>
+                
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏨</div>
+                        <div class="stat-content">
+                            <h3>Hotels Booked</h3>
+                            <p id="stat-hotels">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✈️</div>
+                        <div class="stat-content">
+                            <h3>Flights Booked</h3>
+                            <p id="stat-flights">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3>Reward Points</h3>
+                            <p id="stat-rewards">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div class="stat-content">
+                            <h3>Alerts Active</h3>
+                            <p>5</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-bookings">
+                    <h3>Recent Bookings</h3>
+                    <div class="booking-list">
+                        <div class="booking-item">
+                            <span>🏨 New York Hotel</span>
+                            <span class="booking-date">Jan 15, 2026</span>
+                            <span class="booking-status confirmed">Confirmed</span>
+                        </div>
+                        <div class="booking-item">
+                            <span>✈️ NYC to LA Flight</span>
+                            <span class="booking-date">Jan 20, 2026</span>
+                            <span class="booking-status confirmed">Confirmed</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Update dashboard quick-stats from localStorage globalStats or compute from bookings
+        (function() {
+            function computeFromLocal() {
+                const hotels = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+                const flights = JSON.parse(localStorage.getItem('flightBookings') || '[]');
+                const rewardsFromHotels = hotels.reduce((s, h) => s + (h.price ? Math.round(h.price/100) : 0), 0);
+                const rewardsFromFlights = flights.reduce((s, f) => s + (f.price ? Math.round(Number(f.price)/100) : 0), 0);
+                return {
+                    hotels: hotels.length,
+                    flights: flights.length,
+                    rewards: rewardsFromHotels + rewardsFromFlights
+                };
+            }
+
+            function refreshStats() {
+                const raw = localStorage.getItem('globalStats');
+                let gs;
+                if (raw) {
+                    try { gs = JSON.parse(raw); } catch(e) { gs = null; }
+                }
+                if (!gs) {
+                    gs = computeFromLocal();
+                    localStorage.setItem('globalStats', JSON.stringify(gs));
+                }
+
+                document.getElementById('stat-hotels').textContent = gs.hotels || 0;
+                document.getElementById('stat-flights').textContent = gs.flights || 0;
+                document.getElementById('stat-rewards').textContent = gs.rewards || 0;
+            }
+
+            // Refresh on load
+            document.addEventListener('DOMContentLoaded', refreshStats);
+
+            // Also listen for storage changes from other tabs/windows
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'globalStats' || e.key === 'hotelBookings' || e.key === 'flightBookings') {
+                    refreshStats();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

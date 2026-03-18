@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travelator - My Profile</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: #764ba2;
+        }</style>
+</head>
+<body>
+    <div class="container" style="max-width:1200px; margin:20px auto;">
+        <header style="display:flex; justify-content:space-between; align-items:center; background:white; padding:16px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+            <div style="font-size:20px; font-weight:600; color:#667eea">🧑‍💼 My Profile</div>
+            <div style="display:flex; gap:10px;">
+                  <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
+            </div>
+        </header>
+
+        <main style="margin-top:20px;">
+            <!-- Profile Section (moved from dashboard.html) -->
+            <section id="profile" class="content-section active">
+                <h2>My Profile</h2>
+
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <img src="https://via.placeholder.com/100" alt="Profile" class="profile-avatar">
+                        <div class="profile-info">
+                            <h3 id="fullName">John Doe</h3>
+                            <p id="profileEmail">john@example.com</p>
+                            <p id="profilePhone">+91 1234567890</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-details">
+                        <div class="detail-card">
+                            <h4>Account Settings</h4>
+                            <form id="profileForm">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input id="inputFullName" type="text" placeholder="John Doe" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input id="inputEmail" type="email" placeholder="john@example.com" value="" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Date of Birth</label>
+                                    <input id="inputDob" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <select id="inputGender" required>
+                                        <option value="">Prefer not to say</option>
+                                        <option value="female">Female</option>
+                                        <option value="male">Male</option>
+                                        <option value="nonbinary">Non-binary</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nationality</label>
+                                    <input id="inputNationality" type="text" placeholder="India" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number</label>
+                                    <div class="phone-input">
+                                        <select id="phoneCountryCode">
+                                            <option value="+91" selected>+91 (IN)</option>
+                                        </select>
+                                        <input type="tel" id="phoneNumber" inputmode="numeric" pattern="\d{10}" maxlength="10" placeholder="1234567890" value="" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <textarea id="inputAddress" rows="2" class="form-control" placeholder="Street, City, State, PIN"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Passport Number</label>
+                                    <input id="inputPassport" type="text" placeholder="Passport number" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Passport Expiry</label>
+                                    <input id="inputPassportExpiry" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label>Emergency Contact Name</label>
+                                    <input id="inputEmName" type="text" placeholder="Contact name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Emergency Contact Phone</label>
+                                    <input id="inputEmPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="0000000000" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Preferred Currency</label>
+                                    <select id="inputCurrency" required>
+                                        <option value="INR">INR</option>
+                                        <option value="USD">USD</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Timezone</label>
+                                    <input id="inputTimezone" type="text" placeholder="Asia/Kolkata" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Languages</label>
+                                    <input id="inputLanguages" type="text" placeholder="English, Hindi">
+                                </div>
+                                <button type="submit" class="btn-save">Save Changes</button>
+                            </form>
+                        </div>
+
+                        <div class="detail-card">
+                            <h4>Travel Preferences</h4>
+                            <div class="preferences">
+                                <label><input type="checkbox" id="pref_luxury" checked> Luxury Hotels</label>
+                                <label><input type="checkbox" id="pref_direct" checked> Direct Flights</label>
+                                <label><input type="checkbox" id="pref_budget"> Budget Friendly</label>
+                                <label><input type="checkbox" id="pref_vacation" checked> Vacation Packages</label>
+                                <label><input type="checkbox" id="pref_insurance"> Travel Insurance</label>
+                                <label><input type="checkbox" id="pref_vegetarian"> Vegetarian Meals</label>
+                                <label><input type="checkbox" id="pref_window"> Window Seat Preference</label>
+                                <label><input type="checkbox" id="pref_flexible"> Flexible Dates</label>
+                                <label><input type="checkbox" id="pref_eco"> Eco-friendly Options</label>
+                                <label><input type="checkbox" id="pref_loyalty"> Loyalty Program Emails</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        // Simple form stub: prevent navigation on submit and show a small alert
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('profileForm');
+            const phoneCodeSelect = document.getElementById('phoneCountryCode');
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const inputFullName = document.getElementById('inputFullName');
+            const inputEmail = document.getElementById('inputEmail');
+            const inputDob = document.getElementById('inputDob');
+            const inputGender = document.getElementById('inputGender');
+            const inputNationality = document.getElementById('inputNationality');
+            const inputAddress = document.getElementById('inputAddress');
+            const inputPassport = document.getElementById('inputPassport');
+            const inputPassportExpiry = document.getElementById('inputPassportExpiry');
+            const inputEmName = document.getElementById('inputEmName');
+            const inputEmPhone = document.getElementById('inputEmPhone');
+            const inputCurrency = document.getElementById('inputCurrency');
+            const inputTimezone = document.getElementById('inputTimezone');
+            const inputLanguages = document.getElementById('inputLanguages');
+
+            // Load saved profile info (demo) if present
+            const infoRaw = localStorage.getItem('travelator_profile_info');
+            const info = infoRaw ? JSON.parse(infoRaw) : null;
+            // Existing single-field phone key remains supported
+            const savedPhone = localStorage.getItem('travelator_profile_phone');
+            if (info) {
+                document.getElementById('fullName').textContent = info.fullName || document.getElementById('fullName').textContent;
+                document.getElementById('profileEmail').textContent = info.email || document.getElementById('profileEmail').textContent;
+                document.getElementById('profilePhone').textContent = info.phone ? info.phone : (savedPhone || document.getElementById('profilePhone').textContent);
+
+                inputFullName.value = info.fullName || '';
+                inputEmail.value = info.email || '';
+                inputDob.value = info.dob || '';
+                inputGender.value = info.gender || '';
+                inputNationality.value = info.nationality || '';
+                phoneNumberInput.value = (info.phone || '').replace(/\D/g,'').slice(0,10);
+                inputAddress.value = info.address || '';
+                inputPassport.value = info.passportNumber || '';
+                inputPassportExpiry.value = info.passportExpiry || '';
+                inputEmName.value = info.emName || '';
+                inputEmPhone.value = (info.emPhone||'').replace(/\D/g,'').slice(0,10);
+                inputCurrency.value = info.currency || 'INR';
+                inputTimezone.value = info.timezone || '';
+                inputLanguages.value = info.languages || '';
+            } else if (savedPhone) {
+                document.getElementById('profilePhone').textContent = savedPhone;
+                const m = savedPhone.match(/^(\+\d+)\s+(.*)$/);
+                if (m) {
+                    const code = m[1];
+                    const rest = m[2];
+                    if (Array.from(phoneCodeSelect.options).some(o => o.value === code)) {
+                        phoneCodeSelect.value = code;
+                    }
+                    phoneNumberInput.value = rest.replace(/\D/g, '').slice(0,10);
+                }
+            }
+
+            // Load saved preferences (demo)
+            const prefKeys = [
+                'pref_luxury','pref_direct','pref_budget','pref_vacation','pref_insurance',
+                'pref_vegetarian','pref_window','pref_flexible','pref_eco','pref_loyalty'
+            ];
+            const savedPrefs = JSON.parse(localStorage.getItem('travelator_profile_prefs') || '{}');
+            prefKeys.forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.checked = !!savedPrefs[key];
+            });
+
+            // Enforce numeric-only and max 10 digits on the phone input
+            if (phoneNumberInput) {
+                phoneNumberInput.addEventListener('input', function () {
+                    const digits = this.value.replace(/\D/g, '').slice(0, 10);
+                    this.value = digits;
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const name = inputFullName.value.trim();
+                    const email = inputEmail.value.trim();
+                    const dob = inputDob.value || '';
+                    const gender = inputGender.value || '';
+                    const nationality = inputNationality.value.trim() || '';
+                    const code = phoneCodeSelect.value;
+                    const number = phoneNumberInput.value.trim();
+                    const numberDigits = number.replace(/\D/g, '').slice(0,10);
+                    const combined = numberDigits ? (code + ' ' + numberDigits) : '';
+                    const address = inputAddress.value || '';
+                    const passportNumber = inputPassport.value.trim() || '';
+                    const passportExpiry = inputPassportExpiry.value || '';
+                    const emName = inputEmName.value.trim() || '';
+                    const emPhone = inputEmPhone.value.replace(/\D/g,'').slice(0,10) || '';
+                    const currency = inputCurrency.value || 'INR';
+                    const timezone = inputTimezone.value || '';
+                    const languages = inputLanguages.value || '';
+
+                    // In real app we'd persist to server. For demo, update visible fields only and persist locally.
+                    document.getElementById('fullName').textContent = name;
+                    document.getElementById('profileEmail').textContent = email;
+                    if (combined) {
+                        document.getElementById('profilePhone').textContent = combined;
+                        localStorage.setItem('travelator_profile_phone', combined);
+                    }
+
+                    // Save profile info object
+                    const infoToSave = {
+                        fullName: name,
+                        email: email,
+                        dob: dob,
+                        gender: gender,
+                        nationality: nationality,
+                        phone: combined,
+                        address: address,
+                        passportNumber: passportNumber,
+                        passportExpiry: passportExpiry,
+                        emName: emName,
+                        emPhone: emPhone,
+                        currency: currency,
+                        timezone: timezone,
+                        languages: languages
+                    };
+                    localStorage.setItem('travelator_profile_info', JSON.stringify(infoToSave));
+
+                    // Save preferences
+                    const prefsToSave = {};
+                    prefKeys.forEach(key => {
+                        const el = document.getElementById(key);
+                        prefsToSave[key] = !!(el && el.checked);
+                    });
+                    localStorage.setItem('travelator_profile_prefs', JSON.stringify(prefsToSave));
+                    alert('Profile updated (demo).');
+                });
+            }
+        });
+
+        function goBackToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+    </script>
+</body>
+</html>

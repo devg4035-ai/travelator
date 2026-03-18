@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travelator AI - Live Translator</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --bg: #f0f2f5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--bg); 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        .translator-card {
+            width: 95%; max-width: 900px; background: white;
+            border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: #764ba2;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; padding: 25px; text-align: center;
+        }
+
+        .main-layout { padding: 30px; }
+
+        .lang-selectors {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; gap: 10px;
+        }
+
+        select {
+            flex: 1; padding: 12px; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 1rem; cursor: pointer;
+            background-color: #f8f9fa;
+        }
+
+        .swap-icon {
+            font-size: 1.5rem; cursor: pointer; color: var(--primary);
+            transition: 0.3s; padding: 10px;
+        }
+
+        .swap-icon:hover { transform: rotate(180deg); }
+
+        .text-areas {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+
+        textarea {
+            width: 100%; height: 200px; padding: 20px;
+            border: 1px solid #e0e0e0; border-radius: 12px;
+            font-size: 1.1rem; resize: none; outline: none;
+            line-height: 1.6;
+        }
+
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+
+        .loader {
+            height: 4px; width: 100%; background: #eee;
+            position: relative; overflow: hidden; display: none;
+        }
+
+        .loader::after {
+            content: ''; position: absolute; left: -50%;
+            height: 100%; width: 50%; background: var(--primary);
+            animation: loading 1.5s infinite linear;
+        }
+
+        @keyframes loading {
+            0% { left: -50%; } 100% { left: 100%; }
+        }
+
+        @media (max-width: 600px) {
+            .text-areas { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="translator-card">
+        <div class="app-header">
+            <h1>Travelator Translator</h1>
+            <p>Hindi • English • French • German • Italian • Russian</p>
+            <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
+        </div>
+        
+        <div class="loader" id="loader"></div>
+
+        <div class="main-layout">
+            <div class="lang-selectors">
+                <select id="sourceLang">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi (हिन्दी)</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="de">German (Deutsch)</option>
+                    <option value="it">Italian (Italiano)</option>
+                    <option value="ru">Russian (Русский)</option>
+                </select>
+
+                <div class="swap-icon" onclick="swapLanguages()">⇄</div>
+
+                <select id="targetLang">
+                    <option value="hi">Hindi (हिन्दी)</option>
+                    <option value="en">English</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="de">German (Deutsch)</option>
+                    <option value="it">Italian (Italiano)</option>
+                    <option value="ru">Russian (Русский)</option>
+                </select>
+            </div>
+
+            <div class="text-areas">
+                <textarea id="sourceText" placeholder="Enter text here..."></textarea>
+                <textarea id="targetText" placeholder="Translation..." readonly style="background-color: #fafafa;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sourceText = document.getElementById('sourceText');
+        const targetText = document.getElementById('targetText');
+        const sourceLang = document.getElementById('sourceLang');
+        const targetLang = document.getElementById('targetLang');
+        const loader = document.getElementById('loader');
+
+        let debounceTimer;
+
+        // Listen for typing with a debounce (waits for user to stop typing)
+        sourceText.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(performTranslation, 800);
+        });
+
+        async function performTranslation() {
+            const text = sourceText.value.trim();
+            if (!text) {
+                targetText.value = '';
+                return;
+            }
+
+            loader.style.display = 'block';
+
+            try {
+                // Using a public LibreTranslate mirror for demonstration
+                const res = await fetch("https://translate.argosopentech.com/translate", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        q: text,
+                        source: sourceLang.value,
+                        target: targetLang.value,
+                        format: "text"
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                const data = await res.json();
+                
+                if (data.translatedText) {
+                    targetText.value = data.translatedText;
+                } else {
+                    targetText.value = "Error: Translation failed.";
+                }
+            } catch (err) {
+                targetText.value = "Server error. Please check your connection.";
+                console.error(err);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function swapLanguages() {
+            const tempLang = sourceLang.value;
+            sourceLang.value = targetLang.value;
+            targetLang.value = tempLang;
+
+            const tempText = sourceText.value;
+            sourceText.value = targetText.value;
+            targetText.value = tempText;
+
+            performTranslation();
+        }
+
+        function goBackToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
