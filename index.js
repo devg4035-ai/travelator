@@ -1,14 +1,28 @@
 const express = require('express');
-const path = require('path');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+// Initialize Express App
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(path.join(__dirname)));
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+// MongoDB Connection
+const dbURI = 'your_mongo_db_connection_string'; // Replace with your MongoDB connection string
 
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log('MongoDB connection error: ', err));
+
+// Routes
+app.use('/api/auth', require('./routes/auth')); // Auth routes
+app.use('/api/bookings', require('./routes/bookings')); // Bookings routes
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`Travelator app listening at http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
