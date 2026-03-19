@@ -193,6 +193,48 @@
             display: none;
             text-align: center;
         }
+
+        .upi-modal {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .upi-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+        }
+
+        .upi-modal-content h3 {
+            margin-bottom: 15px;
+        }
+
+        .upi-modal-content img {
+            max-width: 220px;
+            margin-bottom: 16px;
+        }
+
+        .upi-close {
+            margin-top: 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -207,6 +249,21 @@
     </header>
 
     <div id="alert" class="alert" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb;"></div>
+
+    <div id="upiModal" class="upi-modal" onclick="closeUpiModal(event)">
+        <div class="upi-modal-content" onclick="event.stopPropagation()">
+            <h3>Pay using UPI</h3>
+            <img id="upiQrImage" src="" alt="UPI QR Code" />
+            <p id="upiInstruction">Scan the QR code or pay to <strong>8850989807@fam</strong></p>
+            <p id="upiAmountDisplay"></p>
+            <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <button class="upi-close" style="background:#007bff;" onclick="copyUpiLink()">Copy UPI Link</button>
+                <button class="upi-close" style="background:#17a2b8;" onclick="confirmUpiPayment()">I’ve Paid</button>
+                <button class="upi-close" style="background:#dc3545;" onclick="closeUpiModal()">Close</button>
+            </div>
+            <p id="upiFeedback" style="margin-top:8px; font-size:0.9rem; color:#1a7f00; display:none"></p>
+        </div>
+    </div>
 
     <div class="search-container">
         <h2 style="margin-bottom: 20px;">Find the Perfect Stay</h2>
@@ -355,12 +412,18 @@
             price: hotel.price || null,
             checkin,
             checkout,
-            bookedAt: new Date().toISOString()
+            bookedAt: new Date().toISOString(),
+            paymentStatus: 'pending',
+            receiptNumber: null
         };
 
     const existing = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
     existing.push(booking);
     localStorage.setItem('hotelBookings', JSON.stringify(existing));
+    window.currentPendingPayment = { type: 'hotel', id: booking.id };
+
+    // Sync with backend
+    syncBookingToBackend('hotel', booking);
 
     // Update global stats
     const gsRaw = localStorage.getItem('globalStats');
@@ -372,10 +435,126 @@
 
     // Show confirmation to the user
     const alertBox = document.getElementById('alert');
-    alertBox.textContent = `Success! Your room at ${name} has been reserved.`;
+    alertBox.textContent = `Success! Your room at ${name} has been reserved. Please complete payment via UPI.`;
     alertBox.style.display = 'block';
     window.scrollTo({top: 0, behavior: 'smooth'});
     setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
+
+    // Show UPI QR prompt for payment (custom UPI ID)
+    showUpiQrModal(hotel.price || 0);
+    }
+
+    function getUpiQrUrl(amount) {
+        const upiId = '8850989807@fam';
+        const payeeName = 'TravelatorBooking';
+        const qrText = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${encodeURIComponent(amount)}&cu=INR`;
+        return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrText)}`;
+    }
+
+    function showUpiQrModal(amount) {
+        const modal = document.getElementById('upiModal');
+        const qrImage = document.getElementById('upiQrImage');
+        const amountDisplay = document.getElementById('upiAmountDisplay');
+        const instruction = document.getElementById('upiInstruction');
+
+        const qrUrl = getUpiQrUrl(amount);
+        qrImage.src = qrUrl;
+        amountDisplay.innerHTML = `<strong>Amount: ₹${parseFloat(amount).toFixed(2)}</strong>`;
+        instruction.innerHTML = `Scan with UPI app and pay to <strong>8850989807@fam</strong>`;
+
+        modal.style.display = 'flex';
+    }
+
+    function closeUpiModal(event) {
+        if (event && event.target && event.target.id !== 'upiModal') return;
+        const modal = document.getElementById('upiModal');
+        modal.style.display = 'none';
+    }
+
+    function copyUpiLink() {
+        const upiId = '8850989807@fam';
+        const amountText = document.getElementById('upiAmountDisplay').textContent.replace('Amount: ₹', '').trim();
+        const link = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('TravelatorBooking')}&am=${encodeURIComponent(amountText)}&cu=INR`;
+        navigator.clipboard.writeText(link).then(() => {
+            const feedback = document.getElementById('upiFeedback');
+            feedback.textContent = 'UPI payment link copied to clipboard! Paste it in your UPI app.';
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+        }).catch(err => {
+            console.error('Clipboard copy failed', err);
+            alert('Copy failed. Please copy manually: ' + link);
+        });
+    }
+
+    async function confirmUpiPayment() {
+        const modal = document.getElementById('upiModal');
+        modal.style.display = 'none';
+
+        const alertBox = document.getElementById('alert');
+        const receipt = prompt('Enter payment receipt number (required for backend verification)');
+        if (!receipt || !receipt.trim()) {
+            alert('Receipt number is required for verification.');
+            return;
+        }
+
+        if (window.currentPendingPayment && window.currentPendingPayment.type === 'hotel') {
+            const hotels = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const booking = hotels.find(b => b.id === window.currentPendingPayment.id);
+            const amount = booking ? booking.price : 0;
+
+            try {
+                const verifyResp = await verifyBookingBackend('hotel', window.currentPendingPayment.id, receipt.trim(), amount);
+                if (verifyResp && verifyResp.booking) {
+                    booking.paymentStatus = 'paid';
+                    booking.receiptNumber = verifyResp.booking.receiptNumber;
+                    localStorage.setItem('hotelBookings', JSON.stringify(hotels));
+                    alertBox.textContent = 'Payment verified by backend. Thank you!';
+                } else {
+                    alertBox.textContent = 'Payment verification failed on backend. Please retry.';
+                }
+            } catch (err) {
+                console.error('Backend payment verify failed', err);
+                alertBox.textContent = 'Backend verification failed, saving local status only.';
+                if (booking) {
+                    booking.paymentStatus = 'paid';
+                    booking.receiptNumber = receipt.trim();
+                    localStorage.setItem('hotelBookings', JSON.stringify(hotels));
+                }
+            }
+
+            alertBox.style.background = '#d4edda';
+            alertBox.style.color = '#155724';
+            alertBox.style.border = '1px solid #c3e6cb';
+            alertBox.style.display = 'block';
+            setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
+
+            if (document.querySelector('#hotelResults .hotel-card')) {
+                viewMyBookings();
+            }
+        }
+    }
+
+    async function syncBookingToBackend(type, booking) {
+        try {
+            const res = await fetch('http://localhost:3000/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, booking })
+            });
+            return await res.json();
+        } catch (error) {
+            console.warn('Backend sync error', error);
+        }
+    }
+
+    async function verifyBookingBackend(type, id, receiptNumber, amount) {
+        const res = await fetch(`http://localhost:3000/api/bookings/${type}/${id}/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ receiptNumber, amount })
+        });
+        if (!res.ok) throw new Error('Verification failed');
+        return await res.json();
     }
 
     // Show user's bookings stored in localStorage
@@ -393,6 +572,10 @@
         bookings.reverse().forEach(b => {
             const card = document.createElement('div');
             card.className = 'hotel-card';
+            const statusColor = b.paymentStatus === 'paid' ? '#28a745' : b.paymentStatus === 'cancelled' ? '#dc3545' : '#ffc107';
+            const statusText = b.paymentStatus ? b.paymentStatus.toUpperCase() : 'PENDING';
+            const receiptInfo = b.receiptNumber ? `<p style="font-size:12px; color:#666;">Receipt: ${b.receiptNumber}</p>` : '';
+
             card.innerHTML = `
                 <div class="hotel-img">📄</div>
                 <div class="hotel-info">
@@ -400,9 +583,13 @@
                     <div style="color:#666; margin:6px 0;">${b.city}</div>
                     <div class="price-tag">${b.price ? '₹' + b.price.toLocaleString() : 'Price N/A'}</div>
                     <p style="font-size:13px; color:#666; margin:8px 0;">Check-in: ${b.checkin || '—'} | Check-out: ${b.checkout || '—'}</p>
+                    <p style="font-size:12px; color:${statusColor}; font-weight:bold;">Status: ${statusText}</p>
+                    ${receiptInfo}
                     <p style="font-size:12px; color:#666;">Booked on: ${new Date(b.bookedAt).toLocaleString()}</p>
-                    <div style="margin-top:12px; display:flex; gap:10px;">
+                    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap: wrap;">
                         <button class="book-now" onclick="viewHotelDetails(${b.id})">Details</button>
+                        ${b.paymentStatus !== 'paid' && b.paymentStatus !== 'cancelled' ? `<button style="background:#28a745; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="payNowHotel(${b.id})">Pay Now</button>` : ''}
+                        ${b.paymentStatus !== 'paid' ? `<button style="background:#17a2b8; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="markHotelPaid(${b.id})">Mark as Paid</button>` : ''}
                         <button style="background:#dc3545; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="cancelBooking(${b.id})">Cancel Booking</button>
                     </div>
                 </div>
@@ -414,13 +601,51 @@
         window.scrollTo({ top: grid.offsetTop - 20, behavior: 'smooth' });
     }
 
+    function payNowHotel(id) {
+        const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+        const booking = bookings.find(b => b.id === id);
+        if (!booking) {
+            alert('Booking not found');
+            return;
+        }
+        if (booking.paymentStatus === 'cancelled') {
+            alert('This booking has been cancelled and cannot be paid.');
+            return;
+        }
+        window.currentPendingPayment = { type: 'hotel', id: booking.id };
+        showUpiQrModal(booking.price || 0);
+    }
+
+    function markHotelPaid(id) {
+        const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+        const booking = bookings.find(b => b.id === id);
+        if (!booking) {
+            alert('Booking not found');
+            return;
+        }
+        booking.paymentStatus = 'paid';
+        if (!booking.receiptNumber) booking.receiptNumber = 'R-' + Date.now();
+        localStorage.setItem('hotelBookings', JSON.stringify(bookings));
+        syncBookingToBackend('hotel', booking);
+        viewMyBookings();
+        const alertBox = document.getElementById('alert');
+        alertBox.textContent = 'Booking marked as paid with receipt ' + booking.receiptNumber;
+        alertBox.style.display = 'block';
+        setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+    }
+
     // Cancel a booking by id
     function cancelBooking(id) {
         if (!confirm('Are you sure you want to cancel this booking?')) return;
         let bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
-        const beforeCount = bookings.length;
-        bookings = bookings.filter(b => b.id !== id);
+        const booking = bookings.find(b => b.id === id);
+        if (!booking) {
+            alert('Booking not found');
+            return;
+        }
+        booking.paymentStatus = 'cancelled';
         localStorage.setItem('hotelBookings', JSON.stringify(bookings));
+        syncBookingToBackend('hotel', booking);
 
         // Show feedback
         const alertBox = document.getElementById('alert');

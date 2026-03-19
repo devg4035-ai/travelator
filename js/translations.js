@@ -101,6 +101,30 @@ const translatorAPI = {
                 'Do you speak English?': 'Sprichst du Englisch?',
                 'Help, I need assistance!': 'Hilfe, ich brauche Hilfe!',
                 'Thank you very much': 'Vielen Dank'
+            },
+            'hi-en': {
+                'हवाई अड्डा कहाँ है?': 'Where is the airport?',
+                'यह कितने का है?': 'How much does it cost?',
+                'होटल कहाँ है?': 'Where is the hotel?',
+                'क्या आप अंग्रेजी बोलते हैं?': 'Do you speak English?',
+                'मदद कीजिए, मुझे सहायता चाहिए!': 'Help, I need assistance!',
+                'बहुत बहुत धन्यवाद': 'Thank you very much'
+            },
+            'hi-es': {
+                'हवाई अड्डा कहाँ है?': '¿Dónde está el aeropuerto?',
+                'यह कितने का है?': '¿Cuánto cuesta?',
+                'होटल कहाँ है?': '¿Dónde está el hotel?',
+                'क्या आप अंग्रेजी बोलते हैं?': '¿Hablas inglés?',
+                'मदद कीजिए, मुझे सहायता चाहिए!': '¡Ayuda, necesito ayuda!',
+                'बहुत बहुत धन्यवाद': 'Muchas gracias'
+            },
+            'hi-fr': {
+                'हवाई अड्डा कहाँ है?': 'Où est l\'aéroport?',
+                'यह कितने का है?': 'Combien ça coûte?',
+                'होटल कहाँ है?': 'Où est l\'hôtel?',
+                'क्या आप अंग्रेजी बोलते हैं?': 'Parlez-vous anglais?',
+                'मदद कीजिए, मुझे सहायता चाहिए!': 'Aide, j\'ai besoin d\'aide!',
+                'बहुत बहुत धन्यवाद': 'Merci beaucoup'
             }
         };
 
