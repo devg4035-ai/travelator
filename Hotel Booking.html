@@ -129,6 +129,12 @@
         }
                     box-shadow: var(--search-shadow);
         .form-group {
+            .theme-btn {
+                padding: 10px 20px;
+                background: var(--button-bg);
+                color: white;
+                border: none;
+                border-radius: 5px;
             display: flex;
             flex-direction: column;
         }
@@ -222,10 +228,10 @@
         .book-now {
             width: 100%;
             padding: 12px;
-            background: #28a745;
+            background: var(--card-bg);
             color: white;
             border: none;
-            border-radius: 5px;
+            box-shadow: var(--card-shadow);
             cursor: pointer;
             font-weight: bold;
         }
@@ -289,6 +295,7 @@
             <div class="header-actions">
                 <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
                 <button class="my-bookings-btn" onclick="viewMyBookings()">My Bookings</button>
+                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark Mode</button>
             </div>
     </header>
 
@@ -358,9 +365,9 @@
             amenities: ["Sea View", "Heritage", "Spa", "Pool"],
             desc: "Iconic landmark facing the Gateway of India."
         },
-        {
-            name: "ITC Maurya",
-            city: "Delhi",
+            background: var(--alert-bg);
+            color: var(--alert-color);
+            border: 1px solid var(--alert-border);
             rating: 5,
             price: 18000,
             emoji: "🏛️",
@@ -369,7 +376,7 @@
         },
         {
             name: "The Oberoi Udaivilas",
-            city: "Udaipur",
+            background: var(--modal-bg);
             rating: 5,
             price: 45000,
             emoji: "🛶",
@@ -377,13 +384,13 @@
             desc: "Consistently ranked as one of the best hotels in the world."
         },
         {
-            name: "Taj Exotica Resort & Spa",
+            background: var(--modal-content-bg);
             city: "Goa",
             rating: 5,
             price: 22000,
             emoji: "🏖️",
             amenities: ["Beach Front", "Bar", "Golf Course"],
-            desc: "Mediterranean-style resort on the white sands of Benaulim."
+            box-shadow: var(--modal-shadow);
         },
         {
             name: "The Leela Palace",
@@ -760,9 +767,27 @@
     function goBackToDashboard() {
             window.location.href = 'dashboard.html';
     }
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                toggleBtn.textContent = '☀️ Light Mode';
+            } else {
+                toggleBtn.textContent = '🌙 Dark Mode';
+            }
+            localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+        }
 
     // Load all on start
-    window.onload = () => displayHotels(hotelDB);
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            document.getElementById('themeToggle').textContent = '☀️ Light Mode';
+        }
+        displayHotels(hotelDB);
+    };
 </script>
 
 </body>
