@@ -153,6 +153,19 @@
             color: var(--text-primary);
         }
 
+        .form-group input::placeholder,
+        .form-group textarea::placeholder,
+        .form-group select::placeholder {
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        body.dark input,
+        body.dark select,
+        body.dark textarea {
+            color-scheme: dark;
+        }
+
         .form-group select:focus,
         .form-group input:focus {
             outline: none;
@@ -210,7 +223,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 15px;
         }
 
@@ -462,7 +475,7 @@
         </div>
 
         <div class="search-container">
-            <h2 style="margin-bottom: 25px; color: #333;">Search Flights</h2>
+            <h2 style="margin-bottom: 25px; color: var(--text-primary);">Search Flights</h2>
 
             <div class="trip-type">
                 <label class="trip-option">
@@ -652,7 +665,7 @@
             const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 
             let html = `<div class="search-container" style="margin-top: 30px;">
-                <h2 style="color: #333; margin-bottom: 20px;">
+                <h2 style="color: var(--text-primary); margin-bottom: 20px;">
                     Search Results: ${origin} → ${destination} (${date})
                 </h2>`;
 
@@ -670,7 +683,7 @@
                             <div class="flight-route">
                                 <div>
                                     <div class="time">${flight.departure}</div>
-                                    <div style="font-size: 12px; color: #666;">${origin}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">${origin}</div>
                                 </div>
                                 <div class="duration">
                                     <div>${flight.duration}</div>
@@ -678,7 +691,7 @@
                                 </div>
                                 <div>
                                     <div class="time">${flight.arrival}</div>
-                                    <div style="font-size: 12px; color: #666;">${destination}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">${destination}</div>
                                 </div>
                             </div>
                             <div class="flight-details">
@@ -871,7 +884,7 @@
             const container = document.getElementById('resultsContainer');
             container.innerHTML = `
                 <div class="search-container" style="margin-top: 30px;">
-                    <h2 style="color: #333; margin-bottom: 20px;">My Flight Bookings</h2>
+                    <h2 style="color: var(--text-primary); margin-bottom: 20px;">My Flight Bookings</h2>
                     <div id="flightBookingsList"></div>
                     <div style="margin-top: 15px;">
                         <button class="search-btn" onclick="location.reload()">Back to Search</button>

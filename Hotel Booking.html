@@ -158,6 +158,19 @@
             color: var(--text-primary);
         }
 
+        input::placeholder,
+        select::placeholder,
+        textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        body.dark input,
+        body.dark select,
+        body.dark textarea {
+            color-scheme: dark;
+        }
+
         .search-btn {
             grid-column: 1 / -1;
             padding: 15px;
