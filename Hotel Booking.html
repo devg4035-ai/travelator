@@ -4,137 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Booking - Travelator</title>
-    <style>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --header-bg: #ffffff;
+            --header-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            --surface-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: #ffffff;
+            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --text-primary: #333333;
+            --text-muted: #666666;
+            --input-bg: #ffffff;
+            --input-border: #dddddd;
+            --chip-bg: #f0f0f0;
+            --btn-primary: #667eea;
+            --btn-primary-hover: #764ba2;
+            --logo-color: #2405d1;
+            --alert-bg: #d4edda;
+            --alert-text: #155724;
+            --alert-border: #c3e6cb;
+            --modal-overlay: rgba(0, 0, 0, 0.55);
+            --modal-bg: #ffffff;
+            --modal-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark {
+            --bg-gradient: linear-gradient(135deg, #101827 0%, #1f2937 100%);
+            --header-bg: #1f2937;
+            --header-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            --surface-bg: rgba(31, 41, 55, 0.95);
+            --card-bg: #1f2937;
+            --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            --text-primary: #f3f4f6;
+            --text-muted: #cbd5e1;
+            --input-bg: #111827;
+            --input-border: #374151;
+            --chip-bg: #374151;
+            --btn-primary: #4f46e5;
+            --btn-primary-hover: #4338ca;
+            --logo-color: #c7d2fe;
+            --alert-bg: #14532d;
+            --alert-text: #dcfce7;
+            --alert-border: #166534;
+            --modal-overlay: rgba(0, 0, 0, 0.7);
+            --modal-bg: #1f2937;
+            --modal-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+        }
+
         body {
             font-family: 'Nunito', 'Quicksand', sans-serif;
             font-weight: 400;
             line-height: 1.6;
-            background: linear-gradient(135deg,#667eea 0%, #764ba2 100%);
+            letter-spacing: 0.1px;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
+            transition: background 0.25s ease, color 0.25s ease;
         }
-
-                :root {
-                    --bg-gradient: linear-gradient(135deg,#667eea 0%, #764ba2 100%);
-                    --header-bg: white;
-                    --header-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                    --text-color: #333;
-                    --search-bg: rgba(255, 255, 255, 0.95);
-                    --search-shadow: 0 8px 32px rgba(0,0,0,0.1);
-                    --card-bg: white;
-                    --card-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                    --button-bg: #667eea;
-                    --button-hover: #764ba2;
-                    --logo-color: #2405d1;
-                    --alert-bg: #d4edda;
-                    --alert-color: #155724;
-                    --alert-border: #c3e6cb;
-                    --modal-bg: rgba(0, 0, 0, 0.55);
-                    --modal-content-bg: white;
-                    --modal-shadow: 0 16px 40px rgba(0,0,0,0.3);
-                }
-
-                body.dark {
-                    --bg-gradient: linear-gradient(135deg,#1a1a2e 0%, #16213e 100%);
-                    --header-bg: #2a2a2a;
-                    --header-shadow: 0 4px 15px rgba(0,0,0,0.5);
-                    --text-color: #e0e0e0;
-                    --search-bg: rgba(42, 42, 42, 0.95);
-                    --search-shadow: 0 8px 32px rgba(0,0,0,0.3);
-                    --card-bg: #2a2a2a;
-                    --card-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                    --button-bg: #4a90e2;
-                    --button-hover: #357abd;
-                    --logo-color: #7cb9e8;
-                    --alert-bg: #2d5a2d;
-                    --alert-color: #a8d5a8;
-                    --alert-border: #4a8b4a;
-                    --modal-bg: rgba(0, 0, 0, 0.7);
-                    --modal-content-bg: #2a2a2a;
-                    --modal-shadow: 0 16px 40px rgba(0,0,0,0.5);
-                }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
-                    background: var(--bg-gradient);
+
         header {
-            background: white;
-                    color: var(--text-color);
+            background: var(--header-bg);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: var(--header-shadow);
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 14px;
+            transition: background 0.25s ease, box-shadow 0.25s ease;
         }
-                    background: var(--header-bg);
+
         .header-actions {
             display: flex;
-                    box-shadow: var(--header-shadow);
+            gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .logo {
             font-size: 24px;
-            font-weight: bold;
-            color: #2405d1;
+            font-weight: 700;
+            color: var(--logo-color);
         }
 
-        .back-btn {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
+        .back-btn,
+        .my-bookings-btn,
+        .theme-btn {
+            padding: 10px 16px;
+            background: var(--btn-primary);
+            color: #ffffff;
             border: none;
-            border-radius: 5px;
-                    color: var(--logo-color);
-            font-size: 14px;
-        }
-
-        .my-bookings-btn {
-                    background: var(--button-bg);
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
 
-        .back-btn:hover {
-                    background: var(--button-bg);
+        .back-btn:hover,
+        .my-bookings-btn:hover,
+        .theme-btn:hover {
+            background: var(--btn-primary-hover);
+            transform: translateY(-1px);
         }
 
         .search-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--surface-bg);
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
             margin-bottom: 30px;
-                    background: var(--button-hover);
+            transition: background 0.25s ease;
+        }
 
         .search-grid {
             display: grid;
-                    background: var(--search-bg);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
-                    box-shadow: var(--search-shadow);
+
         .form-group {
-            .theme-btn {
-                padding: 10px 20px;
-                background: var(--button-bg);
-                color: white;
-                border: none;
-                border-radius: 5px;
             display: flex;
             flex-direction: column;
         }
@@ -142,16 +145,19 @@
         label {
             margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
         }
 
-        select, input {
+        select,
+        input {
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--input-border);
             border-radius: 8px;
             outline: none;
+            background: var(--input-bg);
+            color: var(--text-primary);
         }
-                    color: var(--text-color);
+
         .search-btn {
             grid-column: 1 / -1;
             padding: 15px;
@@ -159,7 +165,7 @@
             color: white;
             border: none;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             transition: 0.3s;
         }
@@ -176,20 +182,20 @@
         }
 
         .hotel-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: 0.3s;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
         }
 
         .hotel-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-8px);
         }
 
         .hotel-img {
             height: 200px;
-            background: #eee;
+            background: #e5e7eb;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -202,8 +208,9 @@
 
         .hotel-name {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 5px;
+            color: var(--text-primary);
         }
 
         .rating {
@@ -214,7 +221,7 @@
         .price-tag {
             font-size: 22px;
             color: #b21f1f;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .amenities {
@@ -222,18 +229,19 @@
             gap: 10px;
             margin: 15px 0;
             font-size: 12px;
-            color: #666;
+            color: var(--text-muted);
+            flex-wrap: wrap;
         }
 
         .book-now {
             width: 100%;
             padding: 12px;
-            background: var(--card-bg);
+            background: #28a745;
             color: white;
             border: none;
-            box-shadow: var(--card-shadow);
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .alert {
@@ -242,6 +250,9 @@
             margin-bottom: 20px;
             display: none;
             text-align: center;
+            background: var(--alert-bg);
+            color: var(--alert-text);
+            border: 1px solid var(--alert-border);
         }
 
         .upi-modal {
@@ -250,7 +261,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.55);
+            background: var(--modal-overlay);
             display: none;
             align-items: center;
             justify-content: center;
@@ -258,13 +269,14 @@
         }
 
         .upi-modal-content {
-            background: white;
+            background: var(--modal-bg);
+            color: var(--text-primary);
             border-radius: 12px;
             padding: 24px;
             max-width: 400px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+            box-shadow: var(--modal-shadow);
         }
 
         .upi-modal-content h3 {
@@ -285,6 +297,12 @@
             padding: 8px 14px;
             cursor: pointer;
         }
+
+        .empty-message {
+            color: var(--text-primary);
+            grid-column: 1 / -1;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -295,11 +313,11 @@
             <div class="header-actions">
                 <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
                 <button class="my-bookings-btn" onclick="viewMyBookings()">My Bookings</button>
-                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark Mode</button>
+                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
             </div>
     </header>
 
-    <div id="alert" class="alert" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb;"></div>
+    <div id="alert" class="alert"></div>
 
     <div id="upiModal" class="upi-modal" onclick="closeUpiModal(event)">
         <div class="upi-modal-content" onclick="event.stopPropagation()">
@@ -322,11 +340,7 @@
             <div class="form-group">
                 <label>City</label>
                 <select id="citySelect">
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Delhi">Delhi</option>
-                    <option value="Udaipur">Udaipur</option>
-                    <option value="Goa">Goa</option>
-                    <option value="Bangalore">Bangalore</option>
+                    <option value="all">All Cities</option>
                 </select>
             </div>
             <div class="form-group">
@@ -365,9 +379,9 @@
             amenities: ["Sea View", "Heritage", "Spa", "Pool"],
             desc: "Iconic landmark facing the Gateway of India."
         },
-            background: var(--alert-bg);
-            color: var(--alert-color);
-            border: 1px solid var(--alert-border);
+        {
+            name: "ITC Maurya",
+            city: "Delhi",
             rating: 5,
             price: 18000,
             emoji: "🏛️",
@@ -376,7 +390,7 @@
         },
         {
             name: "The Oberoi Udaivilas",
-            background: var(--modal-bg);
+            city: "Udaipur",
             rating: 5,
             price: 45000,
             emoji: "🛶",
@@ -384,13 +398,13 @@
             desc: "Consistently ranked as one of the best hotels in the world."
         },
         {
-            background: var(--modal-content-bg);
+            name: "Taj Exotica Resort & Spa",
             city: "Goa",
             rating: 5,
             price: 22000,
             emoji: "🏖️",
             amenities: ["Beach Front", "Bar", "Golf Course"],
-            box-shadow: var(--modal-shadow);
+            desc: "Mediterranean-style resort on the white sands of Benaulim."
         },
         {
             name: "The Leela Palace",
@@ -445,22 +459,54 @@
             emoji: "🌆",
             amenities: ["Central Location", "Rooftop Lounge", "Business Center"],
             desc: "Iconic and stylish stay in the heart of the city."
-        },
-        {
-            name: "myami Hotel",
-            city: "Goa",
-            rating: 4,
-            price: 13000,
-            emoji: "🏖️",
-            amenities: ["Beach Front", "Spa", "Water Sports"],
-            desc: "Popular for its long private beach and family-friendly atmosphere."
-        },
+        }
     ];
+
+    function populateCityOptions() {
+        const citySelect = document.getElementById('citySelect');
+        const uniqueCities = [...new Set(hotelDB.map(h => h.city))].sort();
+        uniqueCities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+    }
 
     function searchHotels() {
         const city = document.getElementById('citySelect').value;
-        const results = hotelDB.filter(h => h.city === city);
+        const results = city === 'all' ? hotelDB : hotelDB.filter(h => h.city === city);
         displayHotels(results);
+    }
+
+    function initializeDates() {
+        const checkinInput = document.getElementById('checkin');
+        const checkoutInput = document.getElementById('checkout');
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        const formatDate = (date) => date.toISOString().split('T')[0];
+        const todayStr = formatDate(today);
+        const tomorrowStr = formatDate(tomorrow);
+
+        checkinInput.min = todayStr;
+        checkoutInput.min = tomorrowStr;
+
+        if (!checkinInput.value) checkinInput.value = todayStr;
+        if (!checkoutInput.value) checkoutInput.value = tomorrowStr;
+
+        checkinInput.addEventListener('change', () => {
+            const selectedCheckin = checkinInput.value;
+            if (!selectedCheckin) return;
+            const nextDay = new Date(selectedCheckin);
+            nextDay.setDate(nextDay.getDate() + 1);
+            const minCheckout = formatDate(nextDay);
+            checkoutInput.min = minCheckout;
+            if (!checkoutInput.value || checkoutInput.value < minCheckout) {
+                checkoutInput.value = minCheckout;
+            }
+        });
     }
 
     function displayHotels(hotels) {
@@ -468,7 +514,7 @@
         grid.innerHTML = '';
 
         if(hotels.length === 0) {
-            grid.innerHTML = '<div style="color: white; grid-column: 1/-1; text-align: center;">No hotels found for this city.</div>';
+            grid.innerHTML = '<div class="empty-message">No hotels found for this city.</div>';
             return;
         }
 
@@ -480,12 +526,12 @@
                 <div class="hotel-info">
                     <div class="hotel-name">${h.name}</div>
                     <div class="rating">${'★'.repeat(h.rating)}</div>
-                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;">${h.desc}</p>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">${h.desc}</p>
                     <div class="amenities">
-                        ${h.amenities.map(a => `<span style="background: #f0f0f0; padding: 2px 8px; border-radius: 10px;">${a}</span>`).join('')}
+                        ${h.amenities.map(a => `<span style="background: var(--chip-bg); padding: 2px 8px; border-radius: 10px;">${a}</span>`).join('')}
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                        <div class="price-tag">₹${h.price.toLocaleString()}<span style="font-size: 12px; color: #666;">/night</span></div>
+                        <div class="price-tag">₹${h.price.toLocaleString()}<span style="font-size: 12px; color: var(--text-muted);">/night</span></div>
                         <button class="book-now" onclick="confirmBooking('${h.name}')">Book Now</button>
                     </div>
                 </div>
@@ -660,7 +706,7 @@
         grid.innerHTML = '';
 
         if (!bookings.length) {
-            grid.innerHTML = '<div style="color: white; grid-column: 1/-1; text-align: center;">You have no bookings yet.</div>';
+            grid.innerHTML = '<div class="empty-message">You have no bookings yet.</div>';
             return;
         }
 
@@ -670,18 +716,18 @@
             card.className = 'hotel-card';
             const statusColor = b.paymentStatus === 'paid' ? '#28a745' : b.paymentStatus === 'cancelled' ? '#dc3545' : '#ffc107';
             const statusText = b.paymentStatus ? b.paymentStatus.toUpperCase() : 'PENDING';
-            const receiptInfo = b.receiptNumber ? `<p style="font-size:12px; color:#666;">Receipt: ${b.receiptNumber}</p>` : '';
+            const receiptInfo = b.receiptNumber ? `<p style="font-size:12px; color:var(--text-muted);">Receipt: ${b.receiptNumber}</p>` : '';
 
             card.innerHTML = `
                 <div class="hotel-img">📄</div>
                 <div class="hotel-info">
                     <div class="hotel-name">${b.name}</div>
-                    <div style="color:#666; margin:6px 0;">${b.city}</div>
+                    <div style="color:var(--text-muted); margin:6px 0;">${b.city}</div>
                     <div class="price-tag">${b.price ? '₹' + b.price.toLocaleString() : 'Price N/A'}</div>
-                    <p style="font-size:13px; color:#666; margin:8px 0;">Check-in: ${b.checkin || '—'} | Check-out: ${b.checkout || '—'}</p>
+                    <p style="font-size:13px; color:var(--text-muted); margin:8px 0;">Check-in: ${b.checkin || '—'} | Check-out: ${b.checkout || '—'}</p>
                     <p style="font-size:12px; color:${statusColor}; font-weight:bold;">Status: ${statusText}</p>
                     ${receiptInfo}
-                    <p style="font-size:12px; color:#666;">Booked on: ${new Date(b.bookedAt).toLocaleString()}</p>
+                    <p style="font-size:12px; color:var(--text-muted);">Booked on: ${new Date(b.bookedAt).toLocaleString()}</p>
                     <div style="margin-top:12px; display:flex; gap:10px; flex-wrap: wrap;">
                         <button class="book-now" onclick="viewHotelDetails(${b.id})">Details</button>
                         ${b.paymentStatus !== 'paid' && b.paymentStatus !== 'cancelled' ? `<button style="background:#28a745; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="payNowHotel(${b.id})">Pay Now</button>` : ''}
@@ -772,9 +818,9 @@
             const toggleBtn = document.getElementById('themeToggle');
             body.classList.toggle('dark');
             if (body.classList.contains('dark')) {
-                toggleBtn.textContent = '☀️ Light Mode';
+                toggleBtn.textContent = '☀️ Light';
             } else {
-                toggleBtn.textContent = '🌙 Dark Mode';
+                toggleBtn.textContent = '🌙 Dark';
             }
             localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
         }
@@ -784,8 +830,10 @@
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.body.classList.add('dark');
-            document.getElementById('themeToggle').textContent = '☀️ Light Mode';
+            document.getElementById('themeToggle').textContent = '☀️ Light';
         }
+        populateCityOptions();
+        initializeDates();
         displayHotels(hotelDB);
     };
 </script>

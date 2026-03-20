@@ -4,9 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travelator App - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --login-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --muted-color: #666666;
+            --theme-btn-bg: #667eea;
+            --theme-btn-hover: #764ba2;
+        }
+
+        body.dark {
+            --login-bg: linear-gradient(135deg, #101827 0%, #1f2937 100%);
+            --card-bg: #1f2937;
+            --text-color: #f3f4f6;
+            --muted-color: #cbd5e1;
+            --theme-btn-bg: #4f46e5;
+            --theme-btn-hover: #4338ca;
+        }
+
+        body {
+            font-family: 'Nunito', 'Quicksand', sans-serif;
+            background: var(--login-bg);
+            color: var(--text-color);
+        }
+
+        .login-container {
+            background: var(--login-bg);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+        }
+
+        .logo p,
+        .login-footer p,
+        .form-group label {
+            color: var(--muted-color);
+        }
+
+        .theme-btn-floating {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-btn-bg);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .theme-btn-floating:hover {
+            background: var(--theme-btn-hover);
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
 <body>
+    <button id="themeToggle" class="theme-btn-floating" onclick="toggleTheme()">🌙 Dark</button>
     <div class="login-container">
         <div class="login-card">
             <div class="logo">
@@ -102,5 +164,27 @@
 
     <script src="js/auth.js"></script>
     <script src="js/login.js"></script>
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                toggleBtn.textContent = '☀️ Light';
+            } else {
+                toggleBtn.textContent = '🌙 Dark';
+            }
+            localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                const toggleBtn = document.getElementById('themeToggle');
+                if (toggleBtn) toggleBtn.textContent = '☀️ Light';
+            }
+        });
+    </script>
 </body>
 </html>

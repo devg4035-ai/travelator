@@ -4,12 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travelator - My Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <style>
+        :root {
+            --page-bg: #f5f5f5;
+            --surface: #ffffff;
+            --text-color: #2c3e50;
+            --muted-color: #666666;
+            --btn-bg: #667eea;
+            --btn-hover: #764ba2;
+        }
+
+        body.dark {
+            --page-bg: #0f172a;
+            --surface: #1f2937;
+            --text-color: #f3f4f6;
+            --muted-color: #cbd5e1;
+            --btn-bg: #4f46e5;
+            --btn-hover: #4338ca;
+        }
+
+        body {
+            font-family: 'Nunito', 'Quicksand', sans-serif;
+            background: var(--page-bg);
+            color: var(--text-color);
+        }
+
+        .container main,
+        .content-section,
+        .detail-card,
+        .profile-container,
+        .profile-header,
+        .profile-details,
+        .profile-info,
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            color: var(--text-color);
+        }
+
+        .detail-card,
+        .profile-container {
+            background: var(--surface);
+        }
+
+        .header-surface {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            background: var(--surface);
+            padding:16px;
+            border-radius:8px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        }
+
         .back-btn {
             padding: 10px 20px;
-            background: #667eea;
+            background: var(--btn-bg);
             color: white;
             border: none;
             border-radius: 5px;
@@ -18,15 +71,34 @@
         }
 
         .back-btn:hover {
-            background: #764ba2;
-        }</style>
+            background: var(--btn-hover);
+        }
+
+        .theme-btn {
+            padding: 10px 16px;
+            background: var(--btn-bg);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            background: var(--btn-hover);
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
 <body>
     <div class="container" style="max-width:1200px; margin:20px auto;">
-        <header style="display:flex; justify-content:space-between; align-items:center; background:white; padding:16px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <header class="header-surface">
             <div style="font-size:20px; font-weight:600; color:#667eea">🧑‍💼 My Profile</div>
             <div style="display:flex; gap:10px;">
-                  <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
+                <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+                <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
             </div>
         </header>
 
@@ -143,8 +215,27 @@
         </main>
     </div>
     <script>
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                toggleBtn.textContent = '☀️ Light';
+            } else {
+                toggleBtn.textContent = '🌙 Dark';
+            }
+            localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+        }
+
         // Simple form stub: prevent navigation on submit and show a small alert
         document.addEventListener('DOMContentLoaded', function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                const toggleBtn = document.getElementById('themeToggle');
+                if (toggleBtn) toggleBtn.textContent = '☀️ Light';
+            }
+
             const form = document.getElementById('profileForm');
             const phoneCodeSelect = document.getElementById('phoneCountryCode');
             const phoneNumberInput = document.getElementById('phoneNumber');

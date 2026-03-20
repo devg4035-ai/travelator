@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Booking - Travelator App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,9 +12,40 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --surface-bg: #ffffff;
+            --surface-muted: #f8f9fa;
+            --text-primary: #333333;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
+            --accent: #667eea;
+            --accent-hover: #764ba2;
+            --header-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --modal-overlay: rgba(0, 0, 0, 0.55);
+            --modal-bg: #ffffff;
+        }
+
+        body.dark {
+            --bg-gradient: linear-gradient(135deg, #101827 0%, #1f2937 100%);
+            --surface-bg: #1f2937;
+            --surface-muted: #111827;
+            --text-primary: #f3f4f6;
+            --text-muted: #cbd5e1;
+            --border-color: #374151;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --header-shadow: 0 4px 15px rgba(0,0,0,0.45);
+            --card-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            --modal-overlay: rgba(0, 0, 0, 0.75);
+            --modal-bg: #1f2937;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Nunito', 'Quicksand', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
         }
@@ -24,41 +56,53 @@
         }
 
         header {
-            background: white;
+            background: var(--surface-bg);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--header-shadow);
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .logo {
             font-size: 24px;
             font-weight: bold;
-            color: #667eea;
+            color: var(--accent);
         }
 
-        .back-btn {
-            padding: 10px 20px;
-            background: #667eea;
+        .back-btn,
+        .theme-btn {
+            padding: 10px 16px;
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
 
-        .back-btn:hover {
-            background: #764ba2;
+        .back-btn:hover,
+        .theme-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
         }
 
         .search-container {
-            background: white;
+            background: var(--surface-bg);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             margin-bottom: 30px;
         }
 
@@ -94,23 +138,25 @@
         .form-group label {
             margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             font-size: 14px;
         }
 
         .form-group select,
         .form-group input {
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 5px;
             font-size: 14px;
             transition: border-color 0.3s;
+            background: var(--surface-bg);
+            color: var(--text-primary);
         }
 
         .form-group select:focus,
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent);
         }
 
         .search-btn {
@@ -147,10 +193,10 @@
         }
 
         .flight-card {
-            background: white;
+            background: var(--surface-bg);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
@@ -170,13 +216,13 @@
 
         .airline {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .price {
             font-size: 20px;
             font-weight: bold;
-            color: #667eea;
+            color: var(--accent);
         }
 
         .flight-route {
@@ -189,19 +235,19 @@
         .time {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .duration {
             text-align: center;
-            color: #666;
+            color: var(--text-muted);
             font-size: 14px;
         }
 
         .flight-details {
             margin: 15px 0;
             font-size: 14px;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .detail-row {
@@ -213,7 +259,7 @@
         .book-btn {
             width: 100%;
             padding: 12px;
-            background: #667eea;
+            background: var(--accent);
             color: white;
             border: none;
             border-radius: 5px;
@@ -225,16 +271,16 @@
         }
 
         .book-btn:hover {
-            background: #764ba2;
+            background: var(--accent-hover);
         }
 
         .no-results {
             grid-column: 1 / -1;
             text-align: center;
             padding: 50px;
-            background: white;
+            background: var(--surface-bg);
             border-radius: 10px;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .destination-section {
@@ -255,10 +301,10 @@
         }
 
         .destination-card {
-            background: white;
+            background: var(--surface-bg);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             cursor: pointer;
             transition: transform 0.3s;
         }
@@ -270,19 +316,19 @@
         .destination-name {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
 
         .destination-country {
-            color: #667eea;
+            color: var(--accent);
             font-weight: 600;
             margin-bottom: 10px;
         }
 
         .destination-info {
             font-size: 13px;
-            color: #666;
+            color: var(--text-muted);
             margin: 5px 0;
         }
 
@@ -337,9 +383,9 @@
         .no-search {
             text-align: center;
             padding: 50px;
-            background: white;
+            background: var(--surface-bg);
             border-radius: 10px;
-            color: #666;
+            color: var(--text-muted);
             margin-top: 30px;
         }
 
@@ -349,7 +395,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.55);
+            background: var(--modal-overlay);
             display: none;
             align-items: center;
             justify-content: center;
@@ -357,7 +403,8 @@
         }
 
         .upi-modal-content {
-            background: white;
+            background: var(--modal-bg);
+            color: var(--text-primary);
             border-radius: 12px;
             padding: 24px;
             max-width: 400px;
@@ -390,9 +437,10 @@
     <div class="container">
         <header>
             <div class="logo">✈️ Travelator Flight Booking</div>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="header-actions">
                 <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
-                <button class="back-btn" style="background: #667eea;" onclick="viewMyBookings()">My Bookings</button>
+                <button class="back-btn" onclick="viewMyBookings()">My Bookings</button>
+                <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
             </div>
         </header>
 
@@ -992,8 +1040,25 @@
             window.location.href = 'dashboard.html';
         }
 
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                toggleBtn.textContent = '☀️ Light';
+            } else {
+                toggleBtn.textContent = '🌙 Dark';
+            }
+            localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                document.getElementById('themeToggle').textContent = '☀️ Light';
+            }
             displayDestinations();
         });
     </script>

@@ -4,8 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travelator App - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        :root {
+            --dash-bg: #f5f5f5;
+            --dash-surface: #ffffff;
+            --dash-text: #2c3e50;
+            --dash-muted: #666666;
+            --dash-border: #e0e0e0;
+            --dash-sidebar-start: #2c3e50;
+            --dash-sidebar-end: #34495e;
+            --dash-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        body.dark {
+            --dash-bg: #0f172a;
+            --dash-surface: #1f2937;
+            --dash-text: #f3f4f6;
+            --dash-muted: #cbd5e1;
+            --dash-border: #374151;
+            --dash-sidebar-start: #111827;
+            --dash-sidebar-end: #1f2937;
+            --dash-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        body {
+            font-family: 'Nunito', 'Quicksand', sans-serif;
+        }
+
+        .dashboard-container { background: var(--dash-bg); }
+        .sidebar { background: linear-gradient(180deg, var(--dash-sidebar-start) 0%, var(--dash-sidebar-end) 100%); }
+        .top-header, .stat-card, .recent-bookings, .booking-item, .booking-form, .hotel-card, .flight-card, .alert-management, .translator-container { background: var(--dash-surface); box-shadow: var(--dash-card-shadow); }
+        .header-left h1, #userName, .recent-bookings h3, .hotel-info h4, .airline, .flight-time, .add-alert h3, .active-alerts h3, .alert-content h4, .common-phrases h3, .translator-header label, .form-group label { color: var(--dash-text); }
+        .booking-date, .booking-item span, .hotel-info p, .flight-info p, .alert-content p, .alert-content small, .stat-content h3 { color: var(--dash-muted); }
+        .language-selector select, .form-group input, .form-group select, .form-group textarea, #sourceText, #targetText, .phrase-btn { background: var(--dash-surface); color: var(--dash-text); border-color: var(--dash-border); }
+
+        .theme-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -46,6 +97,7 @@
                             <option value="zh">中文</option>
                         </select>
                     </div>
+                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
                     <div class="user-profile">
                         <img src="https://via.placeholder.com/40" alt="User" class="user-avatar">
                         <span id="userName">You</span>
@@ -111,6 +163,27 @@
     <script src="js/translations.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                toggleBtn.textContent = '☀️ Light';
+            } else {
+                toggleBtn.textContent = '🌙 Dark';
+            }
+            localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                const toggleBtn = document.getElementById('themeToggle');
+                if (toggleBtn) toggleBtn.textContent = '☀️ Light';
+            }
+        });
+
         // Update dashboard quick-stats from localStorage globalStats or compute from bookings
         (function() {
             function computeFromLocal() {
