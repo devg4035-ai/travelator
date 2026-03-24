@@ -209,10 +209,14 @@
         .hotel-img {
             height: 200px;
             background: #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
+            overflow: hidden;
+        }
+
+        .hotel-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .hotel-info {
@@ -322,11 +326,11 @@
 
 <div class="container">
     <header>
-        <div class="logo">🏨 Travelator Hotels India</div>
+        <div class="logo">Travelator Hotels India</div>
             <div class="header-actions">
                 <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
                 <button class="my-bookings-btn" onclick="viewMyBookings()">My Bookings</button>
-                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">Dark</button>
             </div>
     </header>
 
@@ -388,7 +392,7 @@
             city: "Mumbai",
             rating: 5,
             price: 25000,
-            emoji: "🏰",
+            image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Sea View", "Heritage", "Spa", "Pool"],
             desc: "Iconic landmark facing the Gateway of India."
         },
@@ -397,7 +401,7 @@
             city: "Delhi",
             rating: 5,
             price: 18000,
-            emoji: "🏛️",
+            image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Fine Dining", "Gym", "Luxury Spa"],
             desc: "Known for its Mauryan architecture and world-class kebabs."
         },
@@ -406,7 +410,7 @@
             city: "Udaipur",
             rating: 5,
             price: 45000,
-            emoji: "🛶",
+            image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Lake View", "Private Pool", "Royal Service"],
             desc: "Consistently ranked as one of the best hotels in the world."
         },
@@ -415,7 +419,7 @@
             city: "Goa",
             rating: 5,
             price: 22000,
-            emoji: "🏖️",
+            image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Beach Front", "Bar", "Golf Course"],
             desc: "Mediterranean-style resort on the white sands of Benaulim."
         },
@@ -424,7 +428,7 @@
             city: "Bangalore",
             rating: 5,
             price: 16000,
-            emoji: "🏙️",
+            image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Garden", "Tech Hub", "Business Lounge"],
             desc: "Inspired by the Royal Palace of Mysore."
         },
@@ -433,7 +437,7 @@
             city: "Mumbai",
             rating: 4,
             price: 12000,
-            emoji: "🏨",
+            image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Marine Drive View", "Pool", "Cafe"],
             desc: "Perfect blend of luxury and convenience."
         },
@@ -442,7 +446,7 @@
             city: "Thiruvananthapuram",
             rating: 5,
             price: 19000,
-            emoji: "🌴",
+            image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Sea View", "Ayurveda Spa", "Infinity Pool"],
             desc: "Surrounded by coconut palms and Indian Ocean views."
         },
@@ -451,7 +455,7 @@
             city: "Jaipur",
             rating: 5,
             price: 23000,
-            emoji: "🏰",
+            image: "https://images.unsplash.com/photo-1590073242678-70ee3fc28f8e?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Royal Heritage", "Fine Dining", "Gardens"],
             desc: "Former residence of the Maharaja of Jaipur, now a luxury heritage hotel."
         },
@@ -460,7 +464,7 @@
             city: "Goa",
             rating: 4,
             price: 13000,
-            emoji: "🏖️",
+            image: "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Beach Front", "Spa", "Water Sports"],
             desc: "Popular for its long private beach and family-friendly atmosphere."
         },
@@ -469,9 +473,81 @@
             city: "Kolkata",
             rating: 4,
             price: 9000,
-            emoji: "🌆",
+            image: "https://images.unsplash.com/photo-1455587734955-081b22074882?auto=format&fit=crop&w=1200&q=80",
             amenities: ["Central Location", "Rooftop Lounge", "Business Center"],
             desc: "Iconic and stylish stay in the heart of the city."
+        },
+        {
+            name: "JW Marriott Chandigarh",
+            city: "Chandigarh",
+            rating: 5,
+            price: 14500,
+            image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Rooftop Pool", "Spa", "Fine Dining"],
+            desc: "Modern luxury stay with excellent dining and city views."
+        },
+        {
+            name: "Novotel Hyderabad Airport",
+            city: "Hyderabad",
+            rating: 4,
+            price: 8500,
+            image: "https://images.unsplash.com/photo-1568084680786-a84f91d1153c?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Airport Shuttle", "Outdoor Pool", "Business Center"],
+            desc: "Convenient upscale hotel ideal for business and transit stays."
+        },
+        {
+            name: "Radisson Blu Kochi",
+            city: "Kochi",
+            rating: 4,
+            price: 7800,
+            image: "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Rooftop Lounge", "Wellness Spa", "Buffet Breakfast"],
+            desc: "Comfortable city hotel with premium amenities in central Kochi."
+        },
+        {
+            name: "Fairfield by Marriott Indore",
+            city: "Indore",
+            rating: 4,
+            price: 6900,
+            image: "https://images.unsplash.com/photo-1444201983204-c43cbd584d93?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Gym", "Meeting Rooms", "Multi-cuisine Restaurant"],
+            desc: "Stylish and practical hotel for leisure and corporate travelers."
+        },
+        {
+            name: "Hyatt Regency Ahmedabad",
+            city: "Ahmedabad",
+            rating: 5,
+            price: 11200,
+            image: "https://images.unsplash.com/photo-1468824357306-a439d58ccb1c?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Riverfront View", "Spa", "Infinity Pool"],
+            desc: "Elegant riverfront property with contemporary rooms and dining."
+        },
+        {
+            name: "The Westin Pune",
+            city: "Pune",
+            rating: 5,
+            price: 12800,
+            image: "https://images.unsplash.com/photo-1445991842772-097fea258e7b?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Luxury Spa", "City View", "Fine Dining"],
+            desc: "Premium urban retreat with spacious rooms and top-class service."
+        },
+        {
+            name: "Vivanta Guwahati",
+            city: "Guwahati",
+            rating: 4,
+            price: 7600,
+            image: "https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Hill View", "Rooftop Dining", "Pool"],
+            desc: "Comfortable luxury in the gateway city to Northeast India."
+        },
+        {
+            name: "Lemon Tree Premier Patna",
+            city: "Patna",
+            rating: 4,
+            price: 6400,
+            image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80",
+            amenities: ["Business Lounge", "Banquet Hall", "Fitness Center"],
+            desc: "Contemporary hotel with great connectivity and modern comfort."
         }
     ];
 
@@ -535,7 +611,9 @@
             const card = document.createElement('div');
             card.className = 'hotel-card';
             card.innerHTML = `
-                <div class="hotel-img">${h.emoji}</div>
+                <div class="hotel-img">
+                    <img src="${h.image}" alt="${h.name}" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=80';" />
+                </div>
                 <div class="hotel-info">
                     <div class="hotel-name">${h.name}</div>
                     <div class="rating">${'★'.repeat(h.rating)}</div>
@@ -565,6 +643,7 @@
             name: hotel.name,
             city: hotel.city || '',
             price: hotel.price || null,
+            image: hotel.image || '',
             checkin,
             checkout,
             bookedAt: new Date().toISOString(),
@@ -730,9 +809,13 @@
             const statusColor = b.paymentStatus === 'paid' ? '#28a745' : b.paymentStatus === 'cancelled' ? '#dc3545' : '#ffc107';
             const statusText = b.paymentStatus ? b.paymentStatus.toUpperCase() : 'PENDING';
             const receiptInfo = b.receiptNumber ? `<p style="font-size:12px; color:var(--text-muted);">Receipt: ${b.receiptNumber}</p>` : '';
+            const matchedHotel = hotelDB.find(h => h.name === b.name);
+            const bookingImage = b.image || (matchedHotel && matchedHotel.image) || 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=80';
 
             card.innerHTML = `
-                <div class="hotel-img">📄</div>
+                <div class="hotel-img">
+                    <img src="${bookingImage}" alt="${b.name}" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=80';" />
+                </div>
                 <div class="hotel-info">
                     <div class="hotel-name">${b.name}</div>
                     <div style="color:var(--text-muted); margin:6px 0;">${b.city}</div>
@@ -831,9 +914,9 @@
             const toggleBtn = document.getElementById('themeToggle');
             body.classList.toggle('dark');
             if (body.classList.contains('dark')) {
-                toggleBtn.textContent = '☀️ Light';
+                toggleBtn.textContent = 'Light';
             } else {
-                toggleBtn.textContent = '🌙 Dark';
+                toggleBtn.textContent = 'Dark';
             }
             localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
         }
@@ -843,7 +926,7 @@
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.body.classList.add('dark');
-            document.getElementById('themeToggle').textContent = '☀️ Light';
+            document.getElementById('themeToggle').textContent = 'Light';
         }
         populateCityOptions();
         initializeDates();
