@@ -11,12 +11,12 @@
         :root {
             --dash-bg: #f5f5f5;
             --dash-surface: #ffffff;
-            --dash-text: #2c3e50;
+            --dash-text: #333333;
             --dash-muted: #666666;
-            --dash-border: #e0e0e0;
+            --dash-border: #dddddd;
             --dash-sidebar-start: #2c3e50;
             --dash-sidebar-end: #34495e;
-            --dash-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --dash-card-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
         }
 
         body.dark {
@@ -32,29 +32,381 @@
 
         body {
             font-family: 'Nunito', 'Quicksand', sans-serif;
+            margin: 0;
+            background: var(--dash-bg);
+            color: var(--dash-text);
         }
 
-        .dashboard-container { background: var(--dash-bg); }
-        .sidebar { background: linear-gradient(180deg, var(--dash-sidebar-start) 0%, var(--dash-sidebar-end) 100%); }
+        .dashboard-container {
+            background: var(--dash-bg);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--dash-sidebar-start) 0%, var(--dash-sidebar-end) 100%);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.6rem;
+            letter-spacing: 0.4px;
+            margin: 0;
+        }
+
+        .brand-bag-logo {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+        }
+
+        .menu-toggle {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+
+        .nav-link {
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: none;
+        }
+
+        .main-content {
+            background: var(--dash-bg);
+            padding: 16px;
+        }
+
         .top-header, .stat-card, .recent-bookings, .booking-item, .booking-form, .hotel-card, .flight-card, .alert-management, .translator-container { background: var(--dash-surface); box-shadow: var(--dash-card-shadow); }
         .header-left h1, #userName, .recent-bookings h3, .hotel-info h4, .airline, .flight-time, .add-alert h3, .active-alerts h3, .alert-content h4, .common-phrases h3, .translator-header label, .form-group label { color: var(--dash-text); }
         .booking-date, .booking-item span, .hotel-info p, .flight-info p, .alert-content p, .alert-content small, .stat-content h3 { color: var(--dash-muted); }
         .language-selector select, .form-group input, .form-group select, .form-group textarea, #sourceText, #targetText, .phrase-btn { background: var(--dash-surface); color: var(--dash-text); border-color: var(--dash-border); }
 
+        .top-header {
+            padding: 16px 24px;
+            border: 1px solid var(--dash-border);
+            border-radius: 14px;
+            margin-bottom: 20px;
+            box-shadow: var(--dash-card-shadow);
+        }
+
+        .header-left h1 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header-right {
+            gap: 16px;
+        }
+
+        .quick-profile {
+            position: relative;
+        }
+
+        .quick-profile-btn {
+            padding: 10px 14px;
+            border: 1px solid var(--dash-border);
+            border-radius: 8px;
+            background: var(--dash-surface);
+            color: var(--dash-text);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .quick-profile-btn:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 18px rgba(102, 126, 234, 0.18);
+            transform: translateY(-1px);
+        }
+
+        .quick-profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 250px;
+            background: var(--dash-surface);
+            border: 1px solid var(--dash-border);
+            border-radius: 12px;
+            box-shadow: var(--dash-card-shadow);
+            padding: 12px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .quick-profile-menu.show {
+            display: block;
+        }
+
+        .quick-profile-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--dash-text);
+            margin-bottom: 4px;
+        }
+
+        .quick-profile-email {
+            font-size: 13px;
+            color: var(--dash-muted);
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .quick-profile-link {
+            display: inline-block;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.35);
+            border-radius: 8px;
+            padding: 6px 10px;
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        body.dark .quick-profile-link {
+            color: #c7d2fe;
+            border-color: rgba(129, 140, 248, 0.45);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .language-selector select {
+            min-width: 135px;
+            border-radius: 8px;
+        }
+
+        .welcome-banner {
+            padding: 28px;
+            border-radius: 14px;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .welcome-banner h2 {
+            font-size: 1.85rem;
+            margin-bottom: 6px;
+        }
+
+        .welcome-banner p {
+            font-size: 1rem;
+            opacity: 0.92;
+        }
+
+        .quick-stats {
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            border: 1px solid var(--dash-border);
+            border-radius: 14px;
+            padding: 18px;
+            align-items: center;
+            gap: 14px;
+            transform: translateY(0);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            min-width: 116px;
+            height: 56px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.12);
+            border: 1px solid rgba(102, 126, 234, 0.32);
+        }
+
+        .stat-icon img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .stat-icon img[src$="hotel-logo.svg"] {
+            transform: scale(0.96);
+        }
+
+        .stat-icon img[src$="flight-logo.svg"] {
+            transform: scale(1.06);
+        }
+
+        .stat-icon img[src$="rewards-logo.svg"] {
+            transform: scale(1.08);
+        }
+
+        .stat-icon img[src$="alerts-logo.svg"] {
+            transform: scale(0.98);
+        }
+
+        .stat-icon.stat-logo {
+            min-width: 62px;
+            height: 62px;
+            padding: 0;
+            background: transparent;
+            border: none;
+        }
+
+        body.dark .stat-icon {
+            color: #c7d2fe;
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(129, 140, 248, 0.45);
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .stat-content h3 {
+            font-size: 0.88rem;
+            margin: 0 0 6px;
+        }
+
+        .stat-content p {
+            font-size: 1.55rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .recent-bookings {
+            border-radius: 14px;
+            border: 1px solid var(--dash-border);
+            padding: 20px;
+        }
+
+        .recent-bookings h3 {
+            margin: 0 0 14px;
+            font-size: 1.1rem;
+        }
+
+        .booking-list {
+            gap: 12px;
+        }
+
+        .booking-item {
+            border-radius: 10px;
+            border-left-width: 3px;
+            padding: 12px 14px;
+            gap: 12px;
+        }
+
+        .booking-item span:first-child {
+            color: var(--dash-text);
+            font-weight: 600;
+        }
+
+        .booking-status {
+            white-space: nowrap;
+        }
+
         .theme-btn {
-            padding: 10px 16px;
+            padding: 10px 14px;
             border: none;
             border-radius: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: #fff;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s ease, transform 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .theme-btn:hover {
+            background: #764ba2;
             transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(102, 126, 234, 0.3);
+        }
+
+        body.dark .theme-btn {
+            background: #4f46e5;
+        }
+
+        body.dark .theme-btn:hover {
+            background: #4338ca;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                padding: 12px;
+            }
+
+            .top-header {
+                padding: 14px 16px;
+            }
+
+            .header-right {
+                gap: 10px;
+            }
+
+            .welcome-banner {
+                padding: 20px;
+                text-align: center;
+            }
+
+            .welcome-banner h2 {
+                font-size: 1.55rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .language-selector,
+            .language-selector select,
+            .theme-btn {
+                width: 100%;
+            }
+
+            .quick-profile {
+                width: 100%;
+            }
+
+            .quick-profile-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .quick-profile-menu {
+                width: 100%;
+            }
+
+            .booking-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -63,8 +415,11 @@
         <!-- Sidebar Navigation -->
         <nav class="sidebar">
             <div class="sidebar-header">
-                <h2>🧳 Travelator</h2>
-                <button class="menu-toggle">☰</button>
+                <div class="sidebar-brand">
+                    <img src="./images/travelator-bag-logo.svg" alt="Travelator Bag" class="brand-bag-logo">
+                    <h2>Travelator</h2>
+                </div>
+                <button class="menu-toggle">Menu</button>
             </div>
             <ul class="nav-menu">
                 <li><a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a></li>
@@ -97,10 +452,16 @@
                             <option value="zh">中文</option>
                         </select>
                     </div>
-                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
-                    <div class="user-profile">
-                        <img src="https://via.placeholder.com/40" alt="User" class="user-avatar">
-                        <span id="userName">You</span>
+                    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">Dark</button>
+                    <div class="quick-profile">
+                        <button id="quickProfileBtn" class="quick-profile-btn" type="button">
+                            <span id="userName">You</span>
+                        </button>
+                        <div id="quickProfileMenu" class="quick-profile-menu">
+                            <div id="quickProfileName" class="quick-profile-name">You</div>
+                            <div id="quickProfileEmail" class="quick-profile-email">session@travelator.com</div>
+                            <a href="profile.html" class="quick-profile-link">Open Profile</a>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -114,28 +475,28 @@
                 
                 <div class="quick-stats">
                     <div class="stat-card">
-                        <div class="stat-icon">🏨</div>
+                        <div class="stat-icon stat-logo"><img src="./images/hotel-logo.svg" alt="Hotels"></div>
                         <div class="stat-content">
                             <h3>Hotels Booked</h3>
                             <p id="stat-hotels">0</p>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">✈️</div>
+                        <div class="stat-icon stat-logo"><img src="./images/flight-logo.svg" alt="Flights"></div>
                         <div class="stat-content">
                             <h3>Flights Booked</h3>
                             <p id="stat-flights">0</p>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">⭐</div>
+                        <div class="stat-icon stat-logo"><img src="./images/rewards-logo.svg" alt="Rewards"></div>
                         <div class="stat-content">
                             <h3>Reward Points</h3>
                             <p id="stat-rewards">0</p>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">📍</div>
+                        <div class="stat-icon stat-logo"><img src="./images/alerts-logo.svg" alt="Alerts"></div>
                         <div class="stat-content">
                             <h3>Alerts Active</h3>
                             <p>5</p>
@@ -147,12 +508,12 @@
                     <h3>Recent Bookings</h3>
                     <div class="booking-list">
                         <div class="booking-item">
-                            <span>🏨 New York Hotel</span>
+                            <span>New York Hotel</span>
                             <span class="booking-date">Jan 15, 2026</span>
                             <span class="booking-status confirmed">Confirmed</span>
                         </div>
                         <div class="booking-item">
-                            <span>✈️ NYC to LA Flight</span>
+                            <span>NYC to LA Flight</span>
                             <span class="booking-date">Jan 20, 2026</span>
                             <span class="booking-status confirmed">Confirmed</span>
                         </div>
@@ -168,9 +529,9 @@
             const toggleBtn = document.getElementById('themeToggle');
             body.classList.toggle('dark');
             if (body.classList.contains('dark')) {
-                toggleBtn.textContent = '☀️ Light';
+                toggleBtn.textContent = 'Light';
             } else {
-                toggleBtn.textContent = '🌙 Dark';
+                toggleBtn.textContent = 'Dark';
             }
             localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
         }
@@ -180,9 +541,55 @@
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark');
                 const toggleBtn = document.getElementById('themeToggle');
-                if (toggleBtn) toggleBtn.textContent = '☀️ Light';
+                if (toggleBtn) toggleBtn.textContent = 'Light';
             }
         });
+
+        function initializeQuickProfileSession() {
+            const quickBtn = document.getElementById('quickProfileBtn');
+            const quickMenu = document.getElementById('quickProfileMenu');
+            const headerName = document.getElementById('userName');
+            const menuName = document.getElementById('quickProfileName');
+            const menuEmail = document.getElementById('quickProfileEmail');
+
+            if (!quickBtn || !quickMenu || !headerName || !menuName || !menuEmail) return;
+
+            let userData = null;
+            if (typeof authManager !== 'undefined' && authManager && typeof authManager.getCurrentUser === 'function') {
+                userData = authManager.getCurrentUser();
+            }
+
+            if (!userData) {
+                try {
+                    const sessionRaw = localStorage.getItem('travelator_session');
+                    if (sessionRaw) {
+                        userData = JSON.parse(sessionRaw);
+                    }
+                } catch (e) {
+                    userData = null;
+                }
+            }
+
+            const displayName = userData?.fullName || 'You';
+            const displayEmail = userData?.email || 'session@travelator.com';
+
+            headerName.textContent = 'You';
+            menuName.textContent = displayName;
+            menuEmail.textContent = displayEmail;
+
+            quickBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                quickMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!quickMenu.contains(event.target) && !quickBtn.contains(event.target)) {
+                    quickMenu.classList.remove('show');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeQuickProfileSession);
 
         // Update dashboard quick-stats from localStorage globalStats or compute from bookings
         (function() {

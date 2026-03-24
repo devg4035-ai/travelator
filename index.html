@@ -12,6 +12,8 @@
             --card-bg: #ffffff;
             --text-color: #333333;
             --muted-color: #666666;
+            --surface-border: #e5e7eb;
+            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
             --theme-btn-bg: #667eea;
             --theme-btn-hover: #764ba2;
         }
@@ -21,6 +23,8 @@
             --card-bg: #1f2937;
             --text-color: #f3f4f6;
             --muted-color: #cbd5e1;
+            --surface-border: #374151;
+            --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
             --theme-btn-bg: #4f46e5;
             --theme-btn-hover: #4338ca;
         }
@@ -37,6 +41,8 @@
 
         .login-card {
             background: var(--card-bg);
+            border: 1px solid var(--surface-border);
+            box-shadow: var(--card-shadow);
         }
 
         .logo p,
@@ -50,29 +56,30 @@
             top: 16px;
             right: 16px;
             z-index: 1000;
-            padding: 10px 16px;
+            padding: 10px 14px;
             border: none;
             border-radius: 8px;
             background: var(--theme-btn-bg);
             color: #fff;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s ease, transform 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .theme-btn-floating:hover {
             background: var(--theme-btn-hover);
             transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(102, 126, 234, 0.3);
         }
     </style>
 </head>
 <body>
-    <button id="themeToggle" class="theme-btn-floating" onclick="toggleTheme()">🌙 Dark</button>
+    <button id="themeToggle" class="theme-btn-floating" onclick="toggleTheme()">Dark</button>
     <div class="login-container">
         <div class="login-card">
             <div class="logo">
-                <h1>✈️ Travelator</h1>
+                <h1>Travelator</h1>
                 <p>Your Travel Companion</p>
             </div>
             
@@ -170,9 +177,9 @@
             const toggleBtn = document.getElementById('themeToggle');
             body.classList.toggle('dark');
             if (body.classList.contains('dark')) {
-                toggleBtn.textContent = '☀️ Light';
+                toggleBtn.textContent = 'Light';
             } else {
-                toggleBtn.textContent = '🌙 Dark';
+                toggleBtn.textContent = 'Dark';
             }
             localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
         }
@@ -182,7 +189,7 @@
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark');
                 const toggleBtn = document.getElementById('themeToggle');
-                if (toggleBtn) toggleBtn.textContent = '☀️ Light';
+                if (toggleBtn) toggleBtn.textContent = 'Light';
             }
         });
     </script>

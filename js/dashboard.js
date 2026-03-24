@@ -23,12 +23,15 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeProfile();
     
     // Logout functionality
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-        if (confirm('Are you sure you want to logout?')) {
-            authManager.logout();
-            window.location.href = 'index.html';
-        }
-    });
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                authManager.logout();
+                window.location.href = 'index.html';
+            }
+        });
+    }
 });
 
 // Initialize user information
@@ -36,9 +39,13 @@ function initializeUser() {
     const user = authManager.getCurrentUser();
     
     if (user) {
-        document.getElementById('userName').textContent = user.fullName || 'User';
-        document.getElementById('fullName').value = user.fullName || '';
-        document.getElementById('profileEmail').textContent = user.email;
+        const userNameEl = document.getElementById('userName');
+        const fullNameEl = document.getElementById('fullName');
+        const profileEmailEl = document.getElementById('profileEmail');
+
+        if (userNameEl) userNameEl.textContent = user.fullName || 'User';
+        if (fullNameEl) fullNameEl.value = user.fullName || '';
+        if (profileEmailEl) profileEmailEl.textContent = user.email || '';
         
         // Populate phone if exists
         const phoneInput = document.querySelector('input[type="tel"]');
