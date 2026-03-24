@@ -1,6 +1,6 @@
 (function () {
-  // Use current host for API calls so translation works from any device
-  const defaultBaseUrl = `${window.location.protocol}//${window.location.hostname}:3000`;
+  // Use same-origin when already on API port, otherwise use host IP with backend port
+  const defaultBaseUrl = window.location.port === "3000" ? "" : `http://${window.location.hostname}:3000`;
   const apiBaseUrl = window.TRANSLATOR_API_BASE_URL || defaultBaseUrl;
 
   // Fallback translation dictionary (7 languages)
