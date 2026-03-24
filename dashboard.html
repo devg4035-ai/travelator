@@ -430,7 +430,7 @@
                 <li><a href="#profile" class="nav-link" data-section="profile" onclick="location.href='profile.html'">Profile</a></li>
             </ul>
             <div class="sidebar-footer">
-                <button id="logoutBtn" class="btn-logout">Logout</button>
+                <button id="logoutBtn" class="btn-logout" onclick="handleLogout()">Logout</button>
             </div>
         </nav>
 
@@ -524,6 +524,17 @@
     <script src="js/translations.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                if (typeof authManager !== 'undefined' && authManager && typeof authManager.logout === 'function') {
+                    authManager.logout();
+                } else {
+                    localStorage.removeItem('travelator_session');
+                }
+                window.location.href = 'index.html';
+            }
+        }
+
         function toggleTheme() {
             const body = document.body;
             const toggleBtn = document.getElementById('themeToggle');

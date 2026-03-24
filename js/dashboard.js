@@ -22,16 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTranslator();
     initializeProfile();
     
-    // Logout functionality
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to logout?')) {
-                authManager.logout();
-                window.location.href = 'index.html';
-            }
-        });
-    }
+    // Logout is handled directly in dashboard.html via handleLogout()
 });
 
 // Initialize user information
