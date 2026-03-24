@@ -2,98 +2,25 @@
   const defaultBaseUrl = window.location.port === "3000" ? "" : "http://localhost:3000";
   const apiBaseUrl = window.TRANSLATOR_API_BASE_URL || defaultBaseUrl;
 
-  const phraseDictionary = {
+  // Fallback translation dictionary (7 languages)
+  const phrasesDictionary = {
     en: {
-      hi: {
-        "hello": "नमस्ते",
-        "thank you": "धन्यवाद",
-        "where is the airport": "हवाई अड्डा कहाँ है",
-        "how much": "कितना",
-        "i need help": "मुझे मदद चाहिए",
-        "good morning": "शुभ प्रभात",
-        "good night": "शुभ रात्रि"
-      },
-      es: {
-        "hello": "hola",
-        "thank you": "gracias",
-        "where is the airport": "dónde está el aeropuerto",
-        "how much": "cuánto cuesta",
-        "i need help": "necesito ayuda",
-        "good morning": "buenos días",
-        "good night": "buenas noches"
-      },
-      fr: {
-        "hello": "bonjour",
-        "thank you": "merci",
-        "where is the airport": "où est l'aéroport",
-        "how much": "combien",
-        "i need help": "j'ai besoin d'aide",
-        "good morning": "bonjour",
-        "good night": "bonne nuit"
-      },
-      de: {
-        "hello": "hallo",
-        "thank you": "danke",
-        "where is the airport": "wo ist der flughafen",
-        "how much": "wie viel",
-        "i need help": "ich brauche hilfe",
-        "good morning": "guten morgen",
-        "good night": "gute nacht"
-      },
-      it: {
-        "hello": "ciao",
-        "thank you": "grazie",
-        "where is the airport": "dov'è l'aeroporto",
-        "how much": "quanto costa",
-        "i need help": "ho bisogno di aiuto",
-        "good morning": "buongiorno",
-        "good night": "buona notte"
-      },
-      ru: {
-        "hello": "привет",
-        "thank you": "спасибо",
-        "where is the airport": "где аэропорт",
-        "how much": "сколько стоит",
-        "i need help": "мне нужна помощь",
-        "good morning": "доброе утро",
-        "good night": "спокойной ночи"
-      }
-    },
-    hi: {
-      en: {
-        "नमस्ते": "hello",
-        "धन्यवाद": "thank you",
-        "हवाई अड्डा कहाँ है": "where is the airport",
-        "कितना": "how much",
-        "मुझे मदद चाहिए": "i need help"
-      }
+      hello: { hi: "नमस्कार", es: "hola", fr: "bonjour", de: "hallo", it: "ciao", ru: "привет" },
+      goodbye: { hi: "अलविदा", es: "adiós", fr: "au revoir", de: "auf wiedersehen", it: "arrivederci", ru: "до свидания" },
+      thank: { hi: "धन्यवाद", es: "gracias", fr: "merci", de: "danke", it: "grazie", ru: "спасибо" },
+      yes: { hi: "हाँ", es: "sí", fr: "oui", de: "ja", it: "sì", ru: "да" },
+      no: { hi: "नहीं", es: "no", fr: "non", de: "nein", it: "no", ru: "нет" },
+      please: { hi: "कृपया", es: "por favor", fr: "s'il vous plaît", de: "bitte", it: "per favore", ru: "пожалуйста" },
+      sorry: { hi: "क्षमा करें", es: "lo siento", fr: "excusez-moi", de: "entschuldigung", it: "mi scusi", ru: "извините" }
     }
   };
 
-  function fallbackTranslate(text, from, to) {
-    if (!text || !text.trim()) return "";
-    if (from === to) return text;
-
-    const normalized = text.trim().toLowerCase();
-    const directMap = phraseDictionary?.[from]?.[to] || null;
-
-    if (directMap && directMap[normalized]) {
-      return directMap[normalized];
-    }
-
-    const reverseFromEnglish = phraseDictionary?.en?.[to] || null;
-    if (from === "en" && reverseFromEnglish && reverseFromEnglish[normalized]) {
-      return reverseFromEnglish[normalized];
-    }
-
-    return `[${to.toUpperCase()}] ${text}`;
-  }
-
+  // Try API translation with timeout
   async function tryApiTranslation(text, from, to) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout
+
       const response = await fetch(`${apiBaseUrl}/api/translate`, {
         method: "POST",
         headers: {
@@ -103,16 +30,41 @@
         signal: controller.signal
       });
 
-      const data = await response.json();
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(data?.message || `Translation failed with status ${response.status}`);
+        return null;
       }
 
-      return data?.translatedText || "";
-    } finally {
-      clearTimeout(timeoutId);
+      const data = await response.json();
+      return data.success ? data.translatedText : null;
+    } catch (error) {
+      return null;
     }
+  }
+
+  // Fallback translation from dictionary
+  function fallbackTranslate(text, from, to) {
+    const cleanText = text.trim().toLowerCase();
+
+    // If translating TO English from another language, reverse lookup
+    if (to === 'en' && from !== 'en') {
+      for (const [key, translations] of Object.entries(phrasesDictionary.en)) {
+        if (translations[from] && translations[from].toLowerCase() === cleanText) {
+          return key;
+        }
+      }
+      return `[${to.toUpperCase()}] ${text}`;
+    }
+
+    // If translating FROM English
+    if (from === 'en' && phrasesDictionary.en[cleanText]) {
+      const translated = phrasesDictionary.en[cleanText][to];
+      return translated || `[${to.toUpperCase()}] ${text}`;
+    }
+
+    // Fallback format
+    return `[${to.toUpperCase()}] ${text}`;
   }
 
   window.translatorAPI = {
@@ -127,7 +79,7 @@
           return apiResult;
         }
       } catch (error) {
-        // Fall back to local translation when API is down/not configured/network blocked.
+        // Fall back to local translation when API is down
       }
 
       return fallbackTranslate(text, from, to);
