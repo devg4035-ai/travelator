@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travelator Popular Zones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,11 +12,42 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --surface-bg: #ffffff;
+            --surface-muted: #f8f9fa;
+            --text-primary: #333333;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
+            --accent: #667eea;
+            --accent-hover: #764ba2;
+            --header-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --surface-border: #e5e7eb;
+            --accent-soft: rgba(102, 126, 234, 0.12);
+        }
+
+        body.dark {
+            --bg-gradient: linear-gradient(135deg, #101827 0%, #1f2937 100%);
+            --surface-bg: #1f2937;
+            --surface-muted: #111827;
+            --text-primary: #f3f4f6;
+            --text-muted: #cbd5e1;
+            --border-color: #374151;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --header-shadow: 0 4px 15px rgba(0,0,0,0.45);
+            --card-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            --surface-border: #374151;
+            --accent-soft: rgba(129, 140, 248, 0.2);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Nunito', 'Quicksand', sans-serif;
+            background: var(--bg-gradient);
             min-height: 100vh;
-            padding: 20px;
+            padding: 16px;
+            color: var(--text-primary);
         }
 
         .container {
@@ -24,42 +56,69 @@
         }
 
         header {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            background: var(--surface-bg);
+            padding: 16px 18px;
+            border-radius: 14px;
+            box-shadow: var(--header-shadow);
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid var(--surface-border);
+            gap: 14px;
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .back-btn {
-            padding: 10px 20px;
-            background: #667eea;
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .back-btn,
+        .theme-btn {
+            padding: 10px 14px;
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .back-btn:hover {
-            background: #764ba2;
+        .back-btn:hover,
+        .theme-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(102, 126, 234, 0.3);
         }
 
         .zones-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--surface-bg);
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: var(--card-shadow);
             transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 18px;
+            border: 1px solid var(--surface-border);
         }
 
         .zones-card:hover {
@@ -72,28 +131,452 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+            align-items: end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .control-group select,
+        .control-group button {
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 0 12px;
+            font-size: 14px;
+            background: var(--surface-bg);
+            color: var(--text-primary);
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .control-group button {
+            border: none;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .control-group button:hover {
+            background: var(--accent-hover);
+        }
+
+        .control-group button.secondary {
+            background: #17a2b8;
+        }
+
+        .control-group button.secondary:hover {
+            background: #138496;
+        }
+
+        .alert-types {
+            display: flex;
+            gap: 18px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .alert-types label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .status-bar {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(102, 126, 234, 0.12);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pill .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .status-pill.paused {
+            background: var(--surface-muted);
+            color: var(--text-muted);
+        }
+
+        .status-pill.paused .dot {
+            background: #9ca3af;
+        }
+
+        .feed-title {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        .alerts-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .feed-empty {
+            padding: 16px;
+            border-radius: 8px;
+            background: var(--surface-muted);
+            border: 1px dashed var(--border-color);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .alert-item {
+            border: 1px solid var(--border-color);
+            border-left-width: 4px;
+            border-radius: 10px;
+            padding: 12px;
+            background: var(--surface-bg);
+        }
+
+        .alert-item.weather {
+            border-left-color: #0ea5e9;
+        }
+
+        .alert-item.price {
+            border-left-color: #f59e0b;
+        }
+
+        .alert-item.event {
+            border-left-color: #10b981;
+        }
+
+        .alert-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .alert-headline {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .alert-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        @media (max-width: 900px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo">👥 Popular Zones</div>
-            <div style="display: flex; gap: 10px; align-items: right;">
+            <div class="logo">
+                <img src="./images/alerts-logo.svg" alt="Travelator Alerts" class="logo-icon">
+                <span>Travelator Zone Alerts</span>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">Dark</button>
+                <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
             </div>
         </header>
-    <div class="zones-card">
-        <div class="app-header">
-            <h2>Features launching soon</h2>
-            <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
+
+        <div class="zones-card">
+            <div class="zones-header">
+                <h2>Get real-time destination alerts</h2>
+            </div>
+
+            <p style="color:var(--text-muted); margin-bottom: 4px;">Track weather updates, price changes, and local events in your destination.</p>
+
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="destinationSelect">Destination</label>
+                    <select id="destinationSelect">
+                        <option value="all">All Popular Destinations</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <button onclick="startRealtimeAlerts()">Start Live Alerts</button>
+                </div>
+                <div class="control-group">
+                    <button class="secondary" onclick="stopRealtimeAlerts()">Pause Alerts</button>
+                </div>
+                <div class="control-group">
+                    <button class="secondary" onclick="pushManualUpdate()">Refresh Now</button>
+                </div>
+            </div>
+
+            <div class="alert-types">
+                <label><input type="checkbox" id="typeWeather" checked> Weather</label>
+                <label><input type="checkbox" id="typePrice" checked> Price Changes</label>
+                <label><input type="checkbox" id="typeEvent" checked> Local Events</label>
+            </div>
+
+            <div class="status-bar">
+                <div id="liveStatus" class="status-pill paused"><span class="dot"></span><span>Paused</span></div>
+                <div id="lastUpdated" style="font-size:12px; color:var(--text-muted);">Last updated: Never</div>
+            </div>
+        </div>
+
+        <div class="zones-card">
+            <div class="zones-header">
+                <h3 class="feed-title">Live Alerts Feed</h3>
+                <span style="font-size:12px; color:var(--text-muted);">Auto updates every 12 seconds</span>
+            </div>
+            <div id="alertsFeed" class="alerts-feed">
+                <div class="feed-empty">No alerts yet. Start Live Alerts to begin tracking your selected destination.</div>
+            </div>
         </div>
     </div>
+
     <script>
+        const destinations = ['Mumbai', 'Delhi', 'Goa', 'Jaipur', 'Dubai', 'Singapore', 'London', 'Paris', 'Tokyo', 'New York'];
+        const weatherConditions = ['Sunny', 'Cloudy', 'Light Rain', 'Heavy Rain', 'Clear Night', 'Windy', 'Thunderstorm'];
+        const eventsCatalog = [
+            'Food Festival',
+            'Night Market',
+            'Live Music Show',
+            'City Heritage Walk',
+            'Beach Carnival',
+            'Art & Craft Fair',
+            'Cultural Dance Performance'
+        ];
+
+        let alertsTimer = null;
+        let alertSequence = 1;
+
+        function formatTime(date) {
+            return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function getSelectedDestination() {
+            return document.getElementById('destinationSelect').value;
+        }
+
+        function getEnabledTypes() {
+            const enabled = [];
+            if (document.getElementById('typeWeather').checked) enabled.push('weather');
+            if (document.getElementById('typePrice').checked) enabled.push('price');
+            if (document.getElementById('typeEvent').checked) enabled.push('event');
+            return enabled;
+        }
+
+        function randomOf(list) {
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function buildAlert(type, destination) {
+            if (type === 'weather') {
+                const condition = randomOf(weatherConditions);
+                const temp = Math.floor(Math.random() * 14) + 20;
+                return {
+                    type,
+                    headline: `${destination}: Weather update`,
+                    text: `${condition} expected with temperature around ${temp}°C. Carry essentials accordingly.`
+                };
+            }
+
+            if (type === 'price') {
+                const change = Math.floor(Math.random() * 21) + 5;
+                const direction = Math.random() > 0.5 ? 'up' : 'down';
+                const product = Math.random() > 0.5 ? 'Flight' : 'Hotel';
+                return {
+                    type,
+                    headline: `${destination}: ${product} price ${direction}`,
+                    text: `${product} prices moved ${direction} by ${change}% in the last update window.`
+                };
+            }
+
+            const eventName = randomOf(eventsCatalog);
+            const hour = Math.floor(Math.random() * 7) + 4;
+            return {
+                type: 'event',
+                headline: `${destination}: Local event alert`,
+                text: `${eventName} starts in about ${hour} hour(s). Check local listings for venue and entry details.`
+            };
+        }
+
+        function pushAlert(alert) {
+            const feed = document.getElementById('alertsFeed');
+            const empty = feed.querySelector('.feed-empty');
+            if (empty) empty.remove();
+
+            const row = document.createElement('div');
+            row.className = `alert-item ${alert.type}`;
+            row.innerHTML = `
+                <div class="alert-meta">
+                    <span>${alert.type.toUpperCase()} • Alert #${alertSequence++}</span>
+                    <span>${formatTime(Date.now())}</span>
+                </div>
+                <div class="alert-headline">${alert.headline}</div>
+                <div class="alert-text">${alert.text}</div>
+            `;
+            feed.prepend(row);
+
+            while (feed.children.length > 25) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        function emitAlertBatch() {
+            const selectedDestination = getSelectedDestination();
+            const destinationsToUse = selectedDestination === 'all' ? destinations : [selectedDestination];
+            const enabledTypes = getEnabledTypes();
+
+            if (enabledTypes.length === 0) {
+                return;
+            }
+
+            const destination = randomOf(destinationsToUse);
+            enabledTypes.forEach((type) => {
+                pushAlert(buildAlert(type, destination));
+            });
+
+            updateLastUpdated();
+        }
+
+        function setLiveStatus(isLive) {
+            const status = document.getElementById('liveStatus');
+            if (isLive) {
+                status.classList.remove('paused');
+                status.innerHTML = '<span class="dot"></span><span>Live</span>';
+                return;
+            }
+            status.classList.add('paused');
+            status.innerHTML = '<span class="dot"></span><span>Paused</span>';
+        }
+
+        function startRealtimeAlerts() {
+            if (alertsTimer) {
+                clearInterval(alertsTimer);
+            }
+            emitAlertBatch();
+            alertsTimer = setInterval(emitAlertBatch, 12000);
+            setLiveStatus(true);
+        }
+
+        function stopRealtimeAlerts() {
+            if (alertsTimer) {
+                clearInterval(alertsTimer);
+                alertsTimer = null;
+            }
+            setLiveStatus(false);
+        }
+
+        function pushManualUpdate() {
+            emitAlertBatch();
+        }
+
+        function initializeZoneAlerts() {
+            const select = document.getElementById('destinationSelect');
+            destinations.forEach((destination) => {
+                const option = document.createElement('option');
+                option.value = destination;
+                option.textContent = destination;
+                select.appendChild(option);
+            });
+        }
+
         function goBackToDashboard() {
             window.location.href = 'dashboard.html';
         }
+
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+
+            if (savedTheme === 'dark') {
+                body.classList.add('dark');
+                toggleBtn.textContent = 'Light';
+            } else {
+                body.classList.remove('dark');
+                toggleBtn.textContent = 'Dark';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            body.classList.toggle('dark');
+
+            if (body.classList.contains('dark')) {
+                toggleBtn.textContent = 'Light';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                toggleBtn.textContent = 'Dark';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeZoneAlerts();
+            applySavedTheme();
+        });
     </script>
 </body>
 </html>
