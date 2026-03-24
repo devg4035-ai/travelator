@@ -488,6 +488,8 @@
 </div>
 
 <script>
+    const HOTEL_BOOKING_PRICE = 10;
+
     // Database of Famous Indian Hotels
     const hotelDB = [
         {
@@ -725,7 +727,7 @@
                         ${h.amenities.map(a => `<span style="background: var(--chip-bg); padding: 2px 8px; border-radius: 10px;">${a}</span>`).join('')}
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                        <div class="price-tag">₹${h.price.toLocaleString()}<span style="font-size: 12px; color: var(--text-muted);">/night</span></div>
+                        <div class="price-tag">₹${HOTEL_BOOKING_PRICE.toLocaleString()}<span style="font-size: 12px; color: var(--text-muted);">/night</span></div>
                         <button class="book-now" onclick="confirmBooking('${h.name}')">Book Now</button>
                     </div>
                 </div>
@@ -745,7 +747,7 @@
             id: Date.now(),
             name: hotel.name,
             city: hotel.city || '',
-            price: hotel.price || null,
+            price: HOTEL_BOOKING_PRICE,
             image: hotel.image || '',
             checkin,
             checkout,
@@ -767,18 +769,18 @@
     const gs = gsRaw ? JSON.parse(gsRaw) : { hotels: 0, flights: 0, rewards: 0 };
     gs.hotels = (gs.hotels || 0) + 1;
     // Reward points: simple rule 1 point per ₹100
-    gs.rewards = (gs.rewards || 0) + Math.round((hotel.price || 0) / 100);
+    gs.rewards = (gs.rewards || 0) + Math.round(HOTEL_BOOKING_PRICE / 100);
     localStorage.setItem('globalStats', JSON.stringify(gs));
 
     // Show confirmation to the user
     const alertBox = document.getElementById('alert');
-    alertBox.textContent = `Success! Your room at ${name} has been reserved. Please complete payment via UPI.`;
+    alertBox.textContent = `Room at ${name} is reserved. Please complete QR payment to confirm booking.`;
     alertBox.style.display = 'block';
     window.scrollTo({top: 0, behavior: 'smooth'});
     setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
 
     // Show UPI QR prompt for payment (custom UPI ID)
-    showUpiQrModal(hotel.price || 0);
+    showUpiQrModal(HOTEL_BOOKING_PRICE);
     }
 
     function getUpiQrUrl(amount) {
@@ -845,18 +847,22 @@
                     booking.paymentStatus = 'paid';
                     booking.receiptNumber = verifyResp.booking.receiptNumber;
                     localStorage.setItem('hotelBookings', JSON.stringify(hotels));
-                    alertBox.textContent = 'Payment verified by backend. Thank you!';
+                    alertBox.textContent = 'Payment verified. Your hotel booking is now confirmed.';
                 } else {
                     alertBox.textContent = 'Payment verification failed on backend. Please retry.';
                 }
             } catch (err) {
                 console.error('Backend payment verify failed', err);
-                alertBox.textContent = 'Backend verification failed, saving local status only.';
+                alertBox.textContent = 'Backend verification failed, saving local paid status and confirming booking.';
                 if (booking) {
                     booking.paymentStatus = 'paid';
                     booking.receiptNumber = receipt.trim();
                     localStorage.setItem('hotelBookings', JSON.stringify(hotels));
                 }
+            }
+
+            if (booking) {
+                alert(`Booking confirmed!\nHotel: ${booking.name}\nPrice: ₹${booking.price || 0}`);
             }
 
             alertBox.style.background = '#d4edda';

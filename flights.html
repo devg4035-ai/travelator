@@ -1015,12 +1015,8 @@
             gs.rewards = (gs.rewards || 0) + Math.round(Number(price) / 100);
             localStorage.setItem('globalStats', JSON.stringify(gs));
 
-            showAlert(`Flight with ${airline} has been added to your cart! Proceeding to payment...`, 'success');
-            setTimeout(() => {
-                const routeText = booking.origin && booking.destination ? `\nRoute: ${booking.origin} → ${booking.destination}` : '';
-                alert(`Booking confirmed!\nAirline: ${airline}${routeText}\nPrice: ₹${price}`);
-                showUpiQrModal(price);
-            }, 800);
+            showAlert(`Flight with ${airline} is reserved. Complete QR payment to confirm booking.`, 'success');
+            showUpiQrModal(price);
         }
 
         function getUpiQrUrl(amount) {
@@ -1117,6 +1113,11 @@
                         booking.receiptNumber = receipt.trim();
                         localStorage.setItem('flightBookings', JSON.stringify(bookings));
                     }
+                }
+
+                if (booking) {
+                    const routeText = booking.origin && booking.destination ? `\nRoute: ${booking.origin} → ${booking.destination}` : '';
+                    alert(`Booking confirmed!\nAirline: ${booking.airline}${routeText}\nPrice: ₹${booking.price}`);
                 }
             }
 
