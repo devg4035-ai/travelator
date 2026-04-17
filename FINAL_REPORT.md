@@ -53,7 +53,7 @@ Your Travelator application now includes a **complete, production-quality authen
 ## 🔑 DEMO ACCOUNTS
 
 ```
-Email: demo@travelator.com
+Email: shiv@travelator.com
 Password: password123
 
 Email: jane@travelator.com
@@ -65,7 +65,7 @@ Password: password456
 ## 🚀 GET STARTED
 
 1. Open: `c:\dev new project\travelator\index.html`
-2. Try: demo@travelator.com / password123
+2. Try: shiv@travelator.com / password123
 3. Explore all features
 4. Create your own account
 

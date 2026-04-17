@@ -2,7 +2,7 @@
 class AuthenticationManager {
     constructor() {
         // Default admin credentials (stored in localStorage keys below if modified)
-        this.defaultAdminEmail = localStorage.getItem('travelator_default_admin_email') || 'demo@travelator.com';
+        this.defaultAdminEmail = localStorage.getItem('travelator_default_admin_email') || 'shiv@travelator.com';
         this.defaultAdminPassword = localStorage.getItem('travelator_default_admin_password') || 'password123';
 
         this.users = this.loadUsers();
@@ -26,8 +26,8 @@ class AuthenticationManager {
         return [
             {
                 id: 1,
-                fullName: 'John Doe',
-                email: 'demo@travelator.com',
+                fullName: 'shiv',
+                email: 'shiv@travelator.com',
                 password: this.hashPassword('password123'),
                 phone: '+1 (555) 123-4567',
                 createdAt: new Date().toISOString(),

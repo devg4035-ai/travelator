@@ -14,7 +14,24 @@ const sanitizeUser = (user) => ({
     _id: user._id,
     username: user.username,
     email: user.email,
+    dateOfBirth: user.dateOfBirth,
+    gender: user.gender,
+    nationality: user.nationality,
+    phone: user.phone,
+    address: user.address,
+    city: user.city,
+    state: user.state,
+    pincode: user.pincode,
+    passportNumber: user.passportNumber,
+    passportExpiry: user.passportExpiry,
+    emergencyContactName: user.emergencyContactName,
+    emergencyContactPhone: user.emergencyContactPhone,
+    currency: user.currency,
+    timezone: user.timezone,
+    languages: user.languages,
+    travelPreferences: user.travelPreferences,
     createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
 });
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -65,6 +82,103 @@ const loginUser = asyncHandler(async (req, res) => {
         success: true,
         data: sanitizeUser(user),
         token: generateToken(user._id),
+    });
+});
+
+// Get current user profile (authenticated)
+const getCurrentUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    res.json({
+        success: true,
+        data: sanitizeUser(user),
+    });
+});
+
+// Update current user profile (authenticated)
+const updateProfile = asyncHandler(async (req, res) => {
+    const {
+        username,
+        email,
+        dateOfBirth,
+        gender,
+        nationality,
+        phone,
+        address,
+        city,
+        state,
+        pincode,
+        passportNumber,
+        passportExpiry,
+        emergencyContactName,
+        emergencyContactPhone,
+        currency,
+        timezone,
+        languages,
+        travelPreferences,
+    } = req.body;
+
+    let user = await User.findById(req.user._id);
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    // Check email uniqueness if email is being changed
+    if (email && email !== user.email) {
+        const normalizedEmail = String(email).toLowerCase().trim();
+        const existingUser = await User.findOne({ email: normalizedEmail });
+        if (existingUser) {
+            res.status(409);
+            throw new Error('Email is already registered');
+        }
+        user.email = normalizedEmail;
+    }
+
+    // Update profile fields
+    if (username !== undefined) user.username = String(username).trim();
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : null;
+    if (gender !== undefined) user.gender = gender;
+    if (nationality !== undefined) user.nationality = String(nationality).trim();
+    if (phone !== undefined) user.phone = String(phone).trim();
+    if (address !== undefined) user.address = String(address).trim();
+    if (city !== undefined) user.city = String(city).trim();
+    if (state !== undefined) user.state = String(state).trim();
+    if (pincode !== undefined) user.pincode = String(pincode).trim();
+    if (passportNumber !== undefined) user.passportNumber = String(passportNumber).trim();
+    if (passportExpiry !== undefined) user.passportExpiry = passportExpiry ? new Date(passportExpiry) : null;
+    if (emergencyContactName !== undefined) user.emergencyContactName = String(emergencyContactName).trim();
+    if (emergencyContactPhone !== undefined) user.emergencyContactPhone = String(emergencyContactPhone).trim();
+    if (currency !== undefined) user.currency = currency;
+    if (timezone !== undefined) user.timezone = String(timezone).trim();
+    if (languages !== undefined) user.languages = String(languages).trim();
+    
+    // Update travel preferences
+    if (travelPreferences !== undefined) {
+        user.travelPreferences = {
+            luxuryHotels: travelPreferences.luxuryHotels !== undefined ? travelPreferences.luxuryHotels : user.travelPreferences.luxuryHotels,
+            directFlights: travelPreferences.directFlights !== undefined ? travelPreferences.directFlights : user.travelPreferences.directFlights,
+            budgetFriendly: travelPreferences.budgetFriendly !== undefined ? travelPreferences.budgetFriendly : user.travelPreferences.budgetFriendly,
+            vacationPackages: travelPreferences.vacationPackages !== undefined ? travelPreferences.vacationPackages : user.travelPreferences.vacationPackages,
+            travelInsurance: travelPreferences.travelInsurance !== undefined ? travelPreferences.travelInsurance : user.travelPreferences.travelInsurance,
+            vegetarianMeals: travelPreferences.vegetarianMeals !== undefined ? travelPreferences.vegetarianMeals : user.travelPreferences.vegetarianMeals,
+            windowSeat: travelPreferences.windowSeat !== undefined ? travelPreferences.windowSeat : user.travelPreferences.windowSeat,
+            flexibleDates: travelPreferences.flexibleDates !== undefined ? travelPreferences.flexibleDates : user.travelPreferences.flexibleDates,
+            ecoFriendly: travelPreferences.ecoFriendly !== undefined ? travelPreferences.ecoFriendly : user.travelPreferences.ecoFriendly,
+            loyaltyProgram: travelPreferences.loyaltyProgram !== undefined ? travelPreferences.loyaltyProgram : user.travelPreferences.loyaltyProgram,
+        };
+    }
+
+    await user.save();
+
+    res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        data: sanitizeUser(user),
     });
 });
 
@@ -171,6 +285,8 @@ const deleteUser = asyncHandler(async (req, res) => {
 module.exports = {
     registerUser,
     loginUser,
+    getCurrentUser,
+    updateProfile,
     createUser,
     getUsers,
     getUserById,

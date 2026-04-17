@@ -334,6 +334,20 @@ const startServer = async () => {
             });
         });
 
+        // Enable socket reuse to allow quick restarts
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.error(`\n❌ Port ${PORT} is already in use. Retrying...\n`);
+                setTimeout(() => {
+                    server.close();
+                    server.listen(PORT, '0.0.0.0');
+                }, 1500);
+            } else {
+                console.error('Server error:', error);
+                process.exit(1);
+            }
+        });
+
         server.listen(PORT, '0.0.0.0', () => {
             const host = require('os').networkInterfaces();
             const ips = Object.values(host)
@@ -348,6 +362,19 @@ const startServer = async () => {
                 ips.forEach(ip => console.log(`   http://${ip}:${PORT}`));
             }
             console.log('\n');
+        });
+
+        // Graceful shutdown
+        process.on('SIGINT', () => {
+            console.log('\n\nShutting down gracefully...');
+            server.close(() => {
+                console.log('Server closed');
+                process.exit(0);
+            });
+            setTimeout(() => {
+                console.error('Forced shutdown');
+                process.exit(1);
+            }, 5000);
         });
     } catch (error) {
         console.error('Failed to start server:', error.message);

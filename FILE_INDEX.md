@@ -331,7 +331,7 @@ Documentation files (standalone):
 ## 🔐 Demo Accounts
 
 Pre-configured for testing:
-- **Email:** demo@travelator.com | **Password:** password123
+- **Email:** shiv@travelator.com | **Password:** password123
 - **Email:** jane@travelator.com | **Password:** password456
 
 ---
@@ -373,7 +373,7 @@ Pre-configured for testing:
 ### Step 1: Open Login
 ```
 Open: index.html
-Try: demo@travelator.com / password123
+Try: shiv@travelator.com / password123
 ```
 
 ### Step 2: Explore Features

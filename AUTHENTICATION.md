@@ -37,7 +37,7 @@ Pre-configured demo accounts for testing:
 
 | Email | Password | Name |
 |-------|----------|------|
-| demo@travelator.com | password123 | Demo User |
+| shiv@travelator.com | password123 | shiv |
 | jane@travelator.com | password456 | Jane Smith |
 
 ---
@@ -111,8 +111,8 @@ Create a new user account.
 **Example:**
 ```javascript
 const result = authManager.registerUser(
-    'John Doe',
-    'john@example.com',
+    'shiv',
+    'shiv@example.com',
     'SecurePass123!',
     'SecurePass123!'
 );
@@ -149,7 +149,7 @@ Authenticate a user and create a session.
 
 **Example:**
 ```javascript
-const result = authManager.login('john@example.com', 'SecurePass123!', true);
+const result = authManager.login('shiv@example.com', 'SecurePass123!', true);
 
 if (result.success) {
     window.location.href = 'dashboard.html';
@@ -503,8 +503,8 @@ To use a real backend instead of localStorage:
     "message": "Login successful!",
     "user": {
         "id": 1,
-        "fullName": "John Doe",
-        "email": "john@example.com"
+        "fullName": "Demo User",
+        "email": "demo@example.com"
     }
 }
 ```
