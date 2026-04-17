@@ -520,6 +520,12 @@
                     </div>
                 </div>
             </section>
+    <script>
+        window.TRAVELATOR_API_BASE_URL =
+            window.TRAVELATOR_API_BASE_URL ||
+            localStorage.getItem('travelator_api_base') ||
+            '';
+    </script>
     <script src="js/api-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/translations.js"></script>

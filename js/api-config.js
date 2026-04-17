@@ -6,6 +6,7 @@
 class APIConfigManager {
     constructor() {
         this.apiBase = null;
+        this.defaultPort = '5000';
         this.isOnline = navigator.onLine;
         this.connectionAttempts = 0;
         this.maxRetries = 3;
@@ -39,28 +40,25 @@ class APIConfigManager {
      * Detect the correct API base URL based on how the page was accessed
      */
     detectAPIBase() {
-        const protocol = window.location.protocol;
-        const hostname = window.location.hostname;
-        const port = window.location.port;
+        this.apiBase = this.getNewAPIBase();
+        console.log(`[API Config] API base resolved to: ${this.apiBase || '(same-origin)'}`);
+    }
 
-        // Case 1: Accessed via file:// protocol (local file)
-        if (protocol === 'file:') {
-            this.apiBase = 'http://localhost:5000';
-            console.log('[API Config] File protocol detected, using localhost');
-            return;
+    getConfiguredProdApi() {
+        const queryApi = new URLSearchParams(window.location.search).get('apiBase');
+        if (queryApi && String(queryApi).trim()) {
+            const normalizedQueryApi = String(queryApi).trim().replace(/\/$/, '');
+            localStorage.setItem('travelator_api_base', normalizedQueryApi);
+            return normalizedQueryApi;
         }
 
-        // Case 2: Accessed directly on port 5000 (same-origin)
-        if (port === '5000') {
-            this.apiBase = '';
-            console.log('[API Config] Accessed on port 5000, using same-origin');
-            return;
-        }
+        const fromWindow =
+            (typeof window !== 'undefined' && window.TRAVELATOR_API_BASE_URL)
+                ? String(window.TRAVELATOR_API_BASE_URL).trim()
+                : '';
+        const fromStorage = String(localStorage.getItem('travelator_api_base') || '').trim();
 
-        // Case 3: Accessed from different port/IP (served from port 8080, 5000, etc)
-        // Use the same hostname with port 3000
-        this.apiBase = `http://${hostname}:5000`;
-        console.log(`[API Config] Accessed from ${hostname}:${port}, using ${this.apiBase}`);
+        return fromWindow || fromStorage || '';
     }
 
     /**
@@ -172,14 +170,27 @@ class APIConfigManager {
         const protocol = window.location.protocol;
         const hostname = window.location.hostname;
         const port = window.location.port;
+        const configuredProdApi = this.getConfiguredProdApi();
 
-        if (protocol === 'file:') {
-            return 'http://localhost:5000';
+        if (configuredProdApi) {
+            return configuredProdApi.replace(/\/$/, '');
         }
-        if (port === '5000') {
+
+        // GitHub Pages is static hosting. A Node API cannot run there.
+        // In this case, caller should provide TRAVELATOR_API_BASE_URL.
+        if (hostname.includes('github.io')) {
+            console.warn('[API Config] GitHub Pages detected without TRAVELATOR_API_BASE_URL. Translation API will not be reachable.');
             return '';
         }
-        return `http://${hostname}:5000`;
+
+        if (protocol === 'file:') {
+            return `http://localhost:${this.defaultPort}`;
+        }
+        if (port === this.defaultPort) {
+            return '';
+        }
+        return `${protocol}//${hostname}:${this.defaultPort}`;
+    }
 
     /**
      * Register a listener for API config changes
@@ -209,7 +220,8 @@ class APIConfigManager {
      */
     async fetchWithRetry(url, options = {}, retryCount = 0) {
         try {
-            const fullUrl = url.startsWith('http') ? url : `${this.apiBase}${url}`;
+            const base = this.apiBase || '';
+            const fullUrl = url.startsWith('http') ? url : `${base}${url}`;
             const response = await fetch(fullUrl, {
                 ...options,
                 signal: AbortSignal.timeout(options.timeout || 8000),
