@@ -1186,8 +1186,16 @@
                 wsUrl = `${protocol}//${window.location.host}/ws/seats`;
             }
 
-            seatSocket = new WebSocket(wsUrl);
-            seatSocketReady = false;
+            try {
+                seatSocket = new WebSocket(wsUrl);
+                seatSocketReady = false;
+            } catch (error) {
+                seatSocket = null;
+                seatSocketReady = false;
+                document.getElementById('seatLockStatus').textContent = 'Live seat locking unavailable on this network. Booking will still continue.';
+                console.warn('WebSocket seat lock unavailable', error);
+                return;
+            }
 
             seatSocket.onopen = () => {
                 seatSocketReady = true;
@@ -1506,6 +1514,18 @@
             showUpiQrModal(price);
         }
 
+        function normalizeBackendBooking(record) {
+            if (!record) return null;
+            if (record.booking) {
+                return {
+                    id: record.id,
+                    type: record.type,
+                    ...record.booking,
+                };
+            }
+            return record;
+        }
+
         function getUpiQrUrl(amount) {
             const upiId = '8850989807@fam';
             const payeeName = 'TravelatorBooking';
@@ -1647,16 +1667,16 @@
             renderFlightBookings();
         }
 
-        function renderFlightBookings() {
+        async function renderFlightBookings() {
             const list = document.getElementById('flightBookingsList');
-            const bookings = JSON.parse(localStorage.getItem('flightBookings') || '[]');
-            if (!bookings || bookings.length === 0) {
-                list.innerHTML = '<div class="no-results">No bookings yet. Search and book flights to see them here.</div>';
-                return;
-            }
+            const renderBookings = (bookings) => {
+                if (!bookings || bookings.length === 0) {
+                    list.innerHTML = '<div class="no-results">No bookings yet. Search and book flights to see them here.</div>';
+                    return;
+                }
 
-            let html = '<div class="results-container">';
-            bookings.forEach(b => {
+                let html = '<div class="results-container">';
+                bookings.forEach(b => {
                 const bookedAt = b.bookedAt ? new Date(b.bookedAt).toLocaleString() : '';
                 const statusColor = b.paymentStatus === 'paid' ? '#28a745' : b.paymentStatus === 'cancelled' ? '#dc3545' : '#ffc107';
                 const statusText = b.paymentStatus ? b.paymentStatus.toUpperCase() : 'PENDING';
@@ -1697,18 +1717,38 @@
                         </div>
                     </div>
                 `;
-            });
-            html += '</div>';
-            list.innerHTML = html;
-
-            // Attach cancel handlers
-            const cancelBtns = list.querySelectorAll('.cancel-booking');
-            cancelBtns.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const id = Number(this.getAttribute('data-booking-id'));
-                    cancelFlightBooking(id);
                 });
-            });
+                html += '</div>';
+                list.innerHTML = html;
+
+                // Attach cancel handlers
+                const cancelBtns = list.querySelectorAll('.cancel-booking');
+                cancelBtns.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const id = Number(this.getAttribute('data-booking-id'));
+                        cancelFlightBooking(id);
+                    });
+                });
+            };
+
+            const localBookings = JSON.parse(localStorage.getItem('flightBookings') || '[]');
+            renderBookings(localBookings);
+
+            try {
+                const response = await fetch(`${getApiBaseUrl()}/api/bookings`);
+                if (response.ok) {
+                    const backendBookings = await response.json();
+                    const sharedBookings = (Array.isArray(backendBookings) ? backendBookings : [])
+                        .filter((record) => String(record.type || 'flight') === 'flight')
+                        .map(normalizeBackendBooking)
+                        .filter(Boolean);
+                    if (sharedBookings.length > 0) {
+                        renderBookings(sharedBookings);
+                    }
+                }
+            } catch (error) {
+                // keep the local fallback already rendered
+            }
         }
 
         function payNowFlight(id) {
