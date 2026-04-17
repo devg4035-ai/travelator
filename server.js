@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const https = require('https');
 
 const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -84,6 +85,7 @@ app.get('/', (req, res) => {
     });
 });
 
+app.use('/', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);

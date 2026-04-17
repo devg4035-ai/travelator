@@ -273,6 +273,15 @@ class AuthenticationManager {
 
     // Load current user session
     loadCurrentUser() {
+        const storedUser = localStorage.getItem('travelator_current_user');
+        if (storedUser) {
+            try {
+                return JSON.parse(storedUser);
+            } catch (error) {
+                localStorage.removeItem('travelator_current_user');
+            }
+        }
+
         const session = localStorage.getItem('travelator_session');
         if (!session) return null;
 
@@ -290,17 +299,34 @@ class AuthenticationManager {
     // Logout user
     logout() {
         localStorage.removeItem('travelator_session');
+        localStorage.removeItem('travelator_current_user');
+        localStorage.removeItem('travelator_auth_token');
         this.currentUser = null;
     }
 
     // Check if user is authenticated
     isAuthenticated() {
-        return this.currentUser !== null;
+        const token = localStorage.getItem('travelator_auth_token');
+        return Boolean(token && this.currentUser);
     }
 
     // Get current user info
     getCurrentUser() {
         if (!this.currentUser) return null;
+
+        if (this.currentUser.fullName && this.currentUser.email) {
+            return {
+                id: this.currentUser.id || this.currentUser.userId,
+                fullName: this.currentUser.fullName,
+                email: this.currentUser.email,
+                phone: this.currentUser.phone || '',
+                preferences: this.currentUser.preferences || {
+                    hotelType: 'comfort',
+                    directFlights: true,
+                    notifications: true
+                }
+            };
+        }
 
         const user = this.users.find(u => u.id === this.currentUser.userId);
         return user ? {

@@ -1,4 +1,8 @@
 // Login page functionality
+const AUTH_TOKEN_KEY = 'travelator_auth_token';
+const AUTH_USER_KEY = 'travelator_current_user';
+const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
+
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
@@ -36,13 +40,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Check if user is already logged in
-    if (authManager.isAuthenticated()) {
+    if (localStorage.getItem(AUTH_TOKEN_KEY)) {
         window.location.href = 'dashboard.html';
     }
 });
 
 // Handle login
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
 
     const email = document.getElementById('loginEmail').value.trim();
@@ -55,21 +59,32 @@ function handleLogin(e) {
         return;
     }
 
-    // Attempt login
-    const result = authManager.login(email, password, rememberMe);
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
 
-    if (result.success) {
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'Login failed');
+        }
+
+        persistAuth(result.token, result.data, rememberMe);
         showAlert('Login successful! Redirecting...', 'success');
         setTimeout(() => {
             window.location.href = 'dashboard.html';
-        }, 1500);
-    } else {
-        showAlert(result.message, 'error');
+        }, 1200);
+    } catch (error) {
+        showAlert(error.message || 'Unable to login right now', 'error');
     }
 }
 
 // Handle signup
-function handleSignup(e) {
+async function handleSignup(e) {
     e.preventDefault();
 
     const fullName = document.getElementById('fullName').value.trim();
@@ -77,31 +92,70 @@ function handleSignup(e) {
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
+    if (password !== confirmPassword) {
+        showAlert('Passwords do not match', 'error');
+        return;
+    }
+
     // Validate inputs
     if (!fullName || !email || !password || !confirmPassword) {
         showAlert('Please fill in all fields', 'error');
         return;
     }
 
-    // Register user
-    const result = authManager.registerUser(fullName, email, password, confirmPassword);
+    try {
+        const response = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: fullName,
+                email,
+                password,
+            }),
+        });
 
-    if (result.success) {
-        showAlert(result.message + ' Logging you in...', 'success');
-        
-        // Clear form
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'Registration failed');
+        }
+
+        persistAuth(result.token, result.data, false);
+        showAlert('Account created successfully! Redirecting...', 'success');
         document.getElementById('signupForm').reset();
-        
-        // Auto-login after signup
         setTimeout(() => {
-            const loginResult = authManager.login(email, password, false);
-            if (loginResult.success) {
-                window.location.href = 'dashboard.html';
-            }
-        }, 1500);
-    } else {
-        showAlert(result.message, 'error');
+            window.location.href = 'dashboard.html';
+        }, 1200);
+    } catch (error) {
+        showAlert(error.message || 'Unable to register right now', 'error');
     }
+}
+
+function persistAuth(token, userData, rememberMe) {
+    if (!token || !userData) return;
+
+    const normalizedUser = {
+        id: userData._id,
+        fullName: userData.username,
+        email: userData.email,
+        createdAt: userData.createdAt,
+        rememberMe: Boolean(rememberMe),
+    };
+
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(normalizedUser));
+    localStorage.setItem(
+        'travelator_session',
+        JSON.stringify({
+            userId: normalizedUser.id,
+            email: normalizedUser.email,
+            fullName: normalizedUser.fullName,
+            loginTime: Date.now(),
+            rememberMe: normalizedUser.rememberMe,
+            sessionTimeout: Date.now() + 60 * 60 * 1000,
+        })
+    );
 }
 
 // Handle password reset
