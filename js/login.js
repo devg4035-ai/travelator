@@ -6,6 +6,13 @@ const API_BASE =
         ? 'http://localhost:3000'
         : '';
 
+function isNetworkFetchError(error) {
+    return (
+        error instanceof TypeError &&
+        /failed to fetch|networkerror|load failed/i.test(error.message || '')
+    );
+}
+
 async function parseResponsePayload(response) {
     const text = await response.text();
     if (!text) return {};
@@ -100,6 +107,23 @@ async function handleLogin(e) {
             window.location.href = 'dashboard.html';
         }, 1200);
     } catch (error) {
+        if (isNetworkFetchError(error) && typeof authManager !== 'undefined') {
+            const fallbackResult = authManager.login(email, password, rememberMe);
+            if (fallbackResult.success && fallbackResult.user) {
+                persistAuth('local-demo-token', {
+                    _id: fallbackResult.user.id,
+                    username: fallbackResult.user.fullName,
+                    email: fallbackResult.user.email,
+                    createdAt: new Date().toISOString(),
+                }, rememberMe);
+                showAlert('Login successful (offline mode). Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1200);
+                return;
+            }
+        }
+
         showAlert(error.message || 'Unable to login right now', 'error');
     }
 }
@@ -153,6 +177,36 @@ async function handleSignup(e) {
             window.location.href = 'dashboard.html';
         }, 1200);
     } catch (error) {
+        if (isNetworkFetchError(error) && typeof authManager !== 'undefined') {
+            const fallbackResult = authManager.registerUser(
+                fullName,
+                email,
+                password,
+                confirmPassword
+            );
+
+            if (fallbackResult.success) {
+                const loginFallbackResult = authManager.login(email, password, false);
+                if (loginFallbackResult.success && loginFallbackResult.user) {
+                    persistAuth('local-demo-token', {
+                        _id: loginFallbackResult.user.id,
+                        username: loginFallbackResult.user.fullName,
+                        email: loginFallbackResult.user.email,
+                        createdAt: new Date().toISOString(),
+                    }, false);
+                    showAlert('Account created (offline mode). Redirecting...', 'success');
+                    document.getElementById('signupForm').reset();
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1200);
+                    return;
+                }
+            }
+
+            showAlert(fallbackResult.message || 'Unable to register right now', 'error');
+            return;
+        }
+
         showAlert(error.message || 'Unable to register right now', 'error');
     }
 }
