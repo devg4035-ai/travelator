@@ -45,21 +45,21 @@ class APIConfigManager {
 
         // Case 1: Accessed via file:// protocol (local file)
         if (protocol === 'file:') {
-            this.apiBase = 'http://localhost:3000';
+            this.apiBase = 'http://localhost:5000';
             console.log('[API Config] File protocol detected, using localhost');
             return;
         }
 
-        // Case 2: Accessed directly on port 3000 (same-origin)
-        if (port === '3000') {
+        // Case 2: Accessed directly on port 5000 (same-origin)
+        if (port === '5000') {
             this.apiBase = '';
-            console.log('[API Config] Accessed on port 3000, using same-origin');
+            console.log('[API Config] Accessed on port 5000, using same-origin');
             return;
         }
 
         // Case 3: Accessed from different port/IP (served from port 8080, 5000, etc)
         // Use the same hostname with port 3000
-        this.apiBase = `http://${hostname}:3000`;
+        this.apiBase = `http://${hostname}:5000`;
         console.log(`[API Config] Accessed from ${hostname}:${port}, using ${this.apiBase}`);
     }
 
@@ -174,13 +174,12 @@ class APIConfigManager {
         const port = window.location.port;
 
         if (protocol === 'file:') {
-            return 'http://localhost:3000';
+            return 'http://localhost:5000';
         }
-        if (port === '3000') {
+        if (port === '5000') {
             return '';
         }
-        return `http://${hostname}:3000`;
-    }
+        return `http://${hostname}:5000`;
 
     /**
      * Register a listener for API config changes

@@ -3,7 +3,7 @@ const AUTH_TOKEN_KEY = 'travelator_auth_token';
 const AUTH_USER_KEY = 'travelator_current_user';
 
 // Use network-aware API config (defined in api-config.js)
-const getAPIBase = () => apiConfig ? apiConfig.getAPIBase() : 'http://localhost:3000';
+const getAPIBase = () => apiConfig ? apiConfig.getAPIBase() : 'http://localhost:5000';
 
 function isNetworkFetchError(error) {
     return (

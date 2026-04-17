@@ -6,7 +6,7 @@
     }
     // Fallback if api-config.js hasn't loaded yet
     const port = window.location.port;
-    return port === "3000" ? "" : `http://${window.location.hostname}:3000`;
+    return port === "5000" ? "" : `http://${window.location.hostname}:5000`;
   };
 
   // Fallback translation dictionary (7 languages)

@@ -14,7 +14,7 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -153,10 +153,10 @@ const startServer = async () => {
                 .map(iface => iface.address);
             
             console.log(`\n✓ Server running on port ${PORT}`);
-            console.log(`\n📱 Access from this device: http://localhost:3000`);
+            console.log(`\n📱 Access from this device: http://localhost:${PORT}`);
             if (ips.length > 0) {
                 console.log(`📱 Access from other devices on network:`);
-                ips.forEach(ip => console.log(`   http://${ip}:3000`));
+                ips.forEach(ip => console.log(`   http://${ip}:${PORT}`));
             }
             console.log('\n');
         });
