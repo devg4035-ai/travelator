@@ -1,7 +1,24 @@
 // Login page functionality
 const AUTH_TOKEN_KEY = 'travelator_auth_token';
 const AUTH_USER_KEY = 'travelator_current_user';
-const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
+const API_BASE =
+    window.location.protocol === 'file:' || window.location.port !== '3000'
+        ? 'http://localhost:3000'
+        : '';
+
+async function parseResponsePayload(response) {
+    const text = await response.text();
+    if (!text) return {};
+
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        return {
+            success: false,
+            message: `Server returned a non-JSON response (${response.status})`,
+        };
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
@@ -68,9 +85,13 @@ async function handleLogin(e) {
             body: JSON.stringify({ email, password }),
         });
 
-        const result = await response.json();
+        const result = await parseResponsePayload(response);
         if (!response.ok) {
             throw new Error(result.message || 'Login failed');
+        }
+
+        if (!result.token || !result.data) {
+            throw new Error('Login response is missing token or user data');
         }
 
         persistAuth(result.token, result.data, rememberMe);
@@ -116,9 +137,13 @@ async function handleSignup(e) {
             }),
         });
 
-        const result = await response.json();
+        const result = await parseResponsePayload(response);
         if (!response.ok) {
             throw new Error(result.message || 'Registration failed');
+        }
+
+        if (!result.token || !result.data) {
+            throw new Error('Register response is missing token or user data');
         }
 
         persistAuth(result.token, result.data, false);
