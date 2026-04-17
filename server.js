@@ -145,8 +145,20 @@ app.use(errorHandler);
 const startServer = async () => {
     try {
         await connectDB();
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+        app.listen(PORT, '0.0.0.0', () => {
+            const host = require('os').networkInterfaces();
+            const ips = Object.values(host)
+                .flat()
+                .filter(iface => iface.family === 'IPv4' && !iface.internal)
+                .map(iface => iface.address);
+            
+            console.log(`\n✓ Server running on port ${PORT}`);
+            console.log(`\n📱 Access from this device: http://localhost:3000`);
+            if (ips.length > 0) {
+                console.log(`📱 Access from other devices on network:`);
+                ips.forEach(ip => console.log(`   http://${ip}:3000`));
+            }
+            console.log('\n');
         });
     } catch (error) {
         console.error('Failed to start server:', error.message);

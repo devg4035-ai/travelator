@@ -8,10 +8,12 @@ const connectDB = async () => {
     }
 
     await mongoose.connect(mongoUri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
         serverSelectionTimeoutMS: 5000,
     });
 
-    console.log('MongoDB connected');
+    console.log('✓ MongoDB connected successfully');
 };
 
 module.exports = connectDB;

@@ -1,10 +1,17 @@
 // Login page functionality
 const AUTH_TOKEN_KEY = 'travelator_auth_token';
 const AUTH_USER_KEY = 'travelator_current_user';
-const API_BASE =
-    window.location.protocol === 'file:' || window.location.port !== '3000'
-        ? 'http://localhost:3000'
-        : '';
+
+// Smart API base detection: uses current host when accessed from network
+const API_BASE = (() => {
+    if (window.location.protocol === 'file:') {
+        return 'http://localhost:3000';
+    }
+    if (window.location.port === '3000') {
+        return '';
+    }
+    return `http://${window.location.hostname}:3000`;
+})();
 
 function isNetworkFetchError(error) {
     return (
