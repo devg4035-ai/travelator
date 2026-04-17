@@ -50,6 +50,23 @@
     }
   }
 
+  // Public HTTPS fallback for deployed static sites when private API is unreachable.
+  async function tryPublicTranslation(text, from, to) {
+    try {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(from)}|${encodeURIComponent(to)}`;
+      const response = await fetch(url, { method: 'GET' });
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      const translatedText = data?.responseData?.translatedText;
+      return translatedText && translatedText.trim() ? translatedText : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   // Fallback translation from dictionary
   function fallbackTranslate(text, from, to) {
     const cleanText = text.trim().toLowerCase();
@@ -87,6 +104,15 @@
         }
       } catch (error) {
         // Fall back to local translation when API is down
+      }
+
+      try {
+        const publicResult = await tryPublicTranslation(text, from, to);
+        if (publicResult && publicResult.trim()) {
+          return publicResult;
+        }
+      } catch (error) {
+        // Continue to local fallback dictionary.
       }
 
       return fallbackTranslate(text, from, to);
