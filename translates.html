@@ -166,6 +166,68 @@
             position: relative; overflow: hidden; display: none;
         }
 
+        .voice-controls {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .voice-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--surface-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .voice-icon {
+            width: 20px;
+            height: 20px;
+            display: block;
+        }
+
+        .voice-icon path,
+        .voice-icon line {
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .voice-btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+
+        .voice-btn.recording {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: #ffffff;
+            animation: pulse 1.2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        .voice-status {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
         .loader::after {
             content: ''; position: absolute; left: -50%;
             height: 100%; width: 50%; background: var(--accent);
@@ -242,6 +304,18 @@
                 <textarea id="targetText" placeholder="Translation..." readonly></textarea>
             </div>
 
+            <div class="voice-controls">
+                <button id="voiceBtn" class="voice-btn" type="button" aria-label="Start voice input" title="Voice Input">
+                    <svg class="voice-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <rect x="8" y="3" width="8" height="12" rx="4" ry="4"></rect>
+                        <path d="M5 11a7 7 0 0 0 14 0"></path>
+                        <line x1="12" y1="18" x2="12" y2="21"></line>
+                        <line x1="9" y1="21" x2="15" y2="21"></line>
+                    </svg>
+                </button>
+                <span id="voiceStatus" class="voice-status">Voice input ready.</span>
+            </div>
+
             <div style="margin-top: 15px; display: flex; justify-content: center;">
                 <button class="back-btn" style="background: #34a853;" onclick="performTranslation()">Translate Now</button>
             </div>
@@ -256,6 +330,22 @@
         const sourceLang = document.getElementById('sourceLang');
         const targetLang = document.getElementById('targetLang');
         const loader = document.getElementById('loader');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const voiceStatus = document.getElementById('voiceStatus');
+
+        const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognitionLanguageMap = {
+            hi: 'hi-IN',
+            en: 'en-US',
+            es: 'es-ES',
+            fr: 'fr-FR',
+            de: 'de-DE',
+            it: 'it-IT',
+            ru: 'ru-RU',
+        };
+        let recognition;
+        let isListening = false;
+        let lastFinalTranscript = '';
 
         let debounceTimer;
 
@@ -263,6 +353,124 @@
         sourceText.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(performTranslation, 800);
+        });
+
+        function getRecognitionLanguage() {
+            return recognitionLanguageMap[sourceLang.value] || 'en-US';
+        }
+
+        function setVoiceStatus(message) {
+            voiceStatus.textContent = message;
+        }
+
+        function toggleVoiceButton(recording) {
+            voiceBtn.classList.toggle('recording', recording);
+            voiceBtn.setAttribute('aria-label', recording ? 'Stop voice input' : 'Start voice input');
+            voiceBtn.title = recording ? 'Stop Voice Input' : 'Voice Input';
+        }
+
+        function initSpeechRecognition() {
+            if (!SpeechRecognitionCtor) {
+                voiceBtn.disabled = true;
+                setVoiceStatus('Voice input is not supported in this browser. Try Chrome or Edge.');
+                return;
+            }
+
+            recognition = new SpeechRecognitionCtor();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            recognition.lang = getRecognitionLanguage();
+
+            recognition.onstart = () => {
+                isListening = true;
+                toggleVoiceButton(true);
+                setVoiceStatus(`Listening in ${recognition.lang}...`);
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; i += 1) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        lastFinalTranscript += `${transcript} `;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                sourceText.value = `${lastFinalTranscript}${interimTranscript}`.trim();
+            };
+
+            recognition.onerror = (event) => {
+                const messageByError = {
+                    'not-allowed': 'Microphone access blocked. Enable mic permission and try again.',
+                    'service-not-allowed': 'Microphone permission denied by browser settings.',
+                    'audio-capture': 'No microphone detected. Connect a mic and try again.',
+                    'no-speech': 'No speech detected. Try speaking a bit louder.',
+                    'language-not-supported': `Speech recognition does not support ${recognition.lang}.`,
+                    network: 'Speech recognition network error. Check connection and retry.',
+                };
+
+                setVoiceStatus(messageByError[event.error] || 'Voice input failed. Please try again.');
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                toggleVoiceButton(false);
+
+                const finalText = sourceText.value.trim();
+                if (finalText) {
+                    setVoiceStatus('Voice input complete. Translating...');
+                    performTranslation();
+                } else {
+                    setVoiceStatus('Voice input stopped.');
+                }
+            };
+        }
+
+        async function startVoiceInput() {
+            if (!recognition) {
+                initSpeechRecognition();
+            }
+
+            if (!recognition) {
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+                return;
+            }
+
+            recognition.lang = getRecognitionLanguage();
+            lastFinalTranscript = '';
+
+            try {
+                if (navigator.permissions && navigator.permissions.query) {
+                    const permission = await navigator.permissions.query({ name: 'microphone' });
+                    if (permission.state === 'denied') {
+                        setVoiceStatus('Microphone permission is blocked. Allow it in browser settings.');
+                        return;
+                    }
+                }
+            } catch (error) {
+                // Ignore permission query failures and rely on recognition errors.
+            }
+
+            try {
+                recognition.start();
+            } catch (error) {
+                setVoiceStatus('Unable to start voice input. Try again in a moment.');
+            }
+        }
+
+        voiceBtn.addEventListener('click', startVoiceInput);
+        sourceLang.addEventListener('change', () => {
+            if (recognition) {
+                recognition.lang = getRecognitionLanguage();
+            }
+            setVoiceStatus(`Voice language set to ${getRecognitionLanguage()}.`);
         });
 
         async function performTranslation() {
@@ -324,6 +532,8 @@
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             const themeBtn = document.querySelector('.theme-toggle-btn');
+
+            initSpeechRecognition();
             
             if (savedTheme === 'dark') {
                 body.classList.add('dark');
