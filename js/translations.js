@@ -52,27 +52,12 @@
 
   // Public HTTPS fallback for deployed static sites when private API is unreachable.
   async function tryPublicTranslation(text, from, to) {
-    // Provider 1: MyMemory
-    try {
-      const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(from)}|${encodeURIComponent(to)}`;
-      const myMemoryResponse = await fetch(myMemoryUrl, { method: 'GET' });
-      if (myMemoryResponse.ok) {
-        const myMemoryData = await myMemoryResponse.json();
-        const myMemoryText = myMemoryData?.responseData?.translatedText;
-        if (myMemoryText && myMemoryText.trim()) {
-          return myMemoryText;
-        }
-      }
-    } catch (error) {
-      // Try next provider.
-    }
-
-    // Provider 2: Google public endpoint
+    // Provider 1: Google public endpoint (usually better quality)
     try {
       const googleUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(from)}&tl=${encodeURIComponent(to)}&dt=t&q=${encodeURIComponent(text)}`;
       const googleResponse = await fetch(googleUrl, { method: 'GET' });
       if (!googleResponse.ok) {
-        return null;
+        throw new Error('Google fallback response not OK');
       }
 
       const googleData = await googleResponse.json();
@@ -83,7 +68,24 @@
         .join('')
         .trim();
 
-      return translated || null;
+      if (translated) {
+        return translated;
+      }
+    } catch (error) {
+      // Try next provider.
+    }
+
+    // Provider 2: MyMemory as secondary fallback
+    try {
+      const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(from)}|${encodeURIComponent(to)}`;
+      const myMemoryResponse = await fetch(myMemoryUrl, { method: 'GET' });
+      if (!myMemoryResponse.ok) {
+        return null;
+      }
+
+      const myMemoryData = await myMemoryResponse.json();
+      const myMemoryText = myMemoryData?.responseData?.translatedText;
+      return myMemoryText && myMemoryText.trim() ? myMemoryText : null;
     } catch (error) {
       return null;
     }
