@@ -52,16 +52,38 @@
 
   // Public HTTPS fallback for deployed static sites when private API is unreachable.
   async function tryPublicTranslation(text, from, to) {
+    // Provider 1: MyMemory
     try {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(from)}|${encodeURIComponent(to)}`;
-      const response = await fetch(url, { method: 'GET' });
-      if (!response.ok) {
+      const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(from)}|${encodeURIComponent(to)}`;
+      const myMemoryResponse = await fetch(myMemoryUrl, { method: 'GET' });
+      if (myMemoryResponse.ok) {
+        const myMemoryData = await myMemoryResponse.json();
+        const myMemoryText = myMemoryData?.responseData?.translatedText;
+        if (myMemoryText && myMemoryText.trim()) {
+          return myMemoryText;
+        }
+      }
+    } catch (error) {
+      // Try next provider.
+    }
+
+    // Provider 2: Google public endpoint
+    try {
+      const googleUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(from)}&tl=${encodeURIComponent(to)}&dt=t&q=${encodeURIComponent(text)}`;
+      const googleResponse = await fetch(googleUrl, { method: 'GET' });
+      if (!googleResponse.ok) {
         return null;
       }
 
-      const data = await response.json();
-      const translatedText = data?.responseData?.translatedText;
-      return translatedText && translatedText.trim() ? translatedText : null;
+      const googleData = await googleResponse.json();
+      const chunks = Array.isArray(googleData?.[0]) ? googleData[0] : [];
+      const translated = chunks
+        .map((chunk) => (Array.isArray(chunk) ? chunk[0] : ''))
+        .filter(Boolean)
+        .join('')
+        .trim();
+
+      return translated || null;
     } catch (error) {
       return null;
     }
