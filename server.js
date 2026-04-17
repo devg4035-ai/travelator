@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const https = require('https');
+const http = require('http');
+const { WebSocketServer } = require('ws');
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -15,6 +17,39 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const SEAT_LOCK_MS = 5 * 60 * 1000;
+
+const seatLocks = new Map();
+const bookedSeats = new Map();
+
+const getSeatLockKey = (flightKey, seatNumber) => `${flightKey}::${seatNumber}`;
+
+const cleanupExpiredLocks = () => {
+    const now = Date.now();
+    for (const [key, lock] of seatLocks.entries()) {
+        if (lock.expiresAt <= now) {
+            seatLocks.delete(key);
+        }
+    }
+};
+
+const getFlightLocks = (flightKey) => {
+    cleanupExpiredLocks();
+    const locks = [];
+    for (const [key, lock] of seatLocks.entries()) {
+        if (lock.flightKey === flightKey) {
+            locks.push({
+                seatNumber: lock.seatNumber,
+                clientId: lock.clientId,
+                expiresAt: lock.expiresAt,
+            });
+        }
+    }
+    return locks;
+};
+
+const getFlightBookedSeats = (flightKey) =>
+    Array.from(bookedSeats.get(flightKey) || []).map((seatNumber) => ({ seatNumber }));
 
 app.use(cors());
 app.use(express.json());
@@ -145,7 +180,161 @@ app.use(errorHandler);
 const startServer = async () => {
     try {
         await connectDB();
-        app.listen(PORT, '0.0.0.0', () => {
+        const server = http.createServer(app);
+        const wss = new WebSocketServer({ server, path: '/ws/seats' });
+
+        const broadcastFlightState = (flightKey) => {
+            const payload = JSON.stringify({
+                type: 'seat_state',
+                flightKey,
+                locks: getFlightLocks(flightKey),
+                booked: getFlightBookedSeats(flightKey),
+            });
+
+            for (const client of wss.clients) {
+                if (client.readyState === 1 && client.flightKey === flightKey) {
+                    client.send(payload);
+                }
+            }
+        };
+
+        setInterval(() => {
+            cleanupExpiredLocks();
+            const flightKeys = new Set();
+            for (const lock of seatLocks.values()) {
+                flightKeys.add(lock.flightKey);
+            }
+            for (const flightKey of flightKeys) {
+                broadcastFlightState(flightKey);
+            }
+        }, 5000).unref();
+
+        wss.on('connection', (ws) => {
+            ws.clientId = null;
+            ws.flightKey = null;
+
+            ws.on('message', (raw) => {
+                let msg;
+                try {
+                    msg = JSON.parse(String(raw));
+                } catch (error) {
+                    return;
+                }
+
+                if (msg.type === 'subscribe') {
+                    ws.clientId = String(msg.clientId || 'anon');
+                    ws.flightKey = String(msg.flightKey || '');
+                    if (!ws.flightKey) return;
+
+                    ws.send(
+                        JSON.stringify({
+                            type: 'seat_state',
+                            flightKey: ws.flightKey,
+                            locks: getFlightLocks(ws.flightKey),
+                            booked: getFlightBookedSeats(ws.flightKey),
+                        })
+                    );
+                    return;
+                }
+
+                if (!ws.flightKey || !ws.clientId) return;
+
+                if (msg.type === 'lock_seat') {
+                    const seatNumber = String(msg.seatNumber || '');
+                    if (!seatNumber) return;
+
+                    const alreadyBooked = (bookedSeats.get(ws.flightKey) || new Set()).has(seatNumber);
+                    if (alreadyBooked) {
+                        ws.send(
+                            JSON.stringify({
+                                type: 'lock_rejected',
+                                seatNumber,
+                                reason: 'Seat already booked',
+                            })
+                        );
+                        return;
+                    }
+
+                    const key = getSeatLockKey(ws.flightKey, seatNumber);
+                    const existing = seatLocks.get(key);
+                    const now = Date.now();
+
+                    if (existing && existing.expiresAt > now && existing.clientId !== ws.clientId) {
+                        ws.send(
+                            JSON.stringify({
+                                type: 'lock_rejected',
+                                seatNumber,
+                                reason: 'Seat locked by another traveler',
+                            })
+                        );
+                        return;
+                    }
+
+                    const expiresAt = now + SEAT_LOCK_MS;
+                    seatLocks.set(key, {
+                        flightKey: ws.flightKey,
+                        seatNumber,
+                        clientId: ws.clientId,
+                        expiresAt,
+                    });
+
+                    ws.send(
+                        JSON.stringify({
+                            type: 'lock_acquired',
+                            seatNumber,
+                            expiresAt,
+                        })
+                    );
+                    broadcastFlightState(ws.flightKey);
+                    return;
+                }
+
+                if (msg.type === 'release_seat') {
+                    const seatNumber = String(msg.seatNumber || '');
+                    if (!seatNumber) return;
+                    const key = getSeatLockKey(ws.flightKey, seatNumber);
+                    const existing = seatLocks.get(key);
+
+                    if (existing && existing.clientId === ws.clientId) {
+                        seatLocks.delete(key);
+                        broadcastFlightState(ws.flightKey);
+                    }
+                    return;
+                }
+
+                if (msg.type === 'confirm_seat') {
+                    const seatNumber = String(msg.seatNumber || '');
+                    if (!seatNumber) return;
+                    const key = getSeatLockKey(ws.flightKey, seatNumber);
+                    const existing = seatLocks.get(key);
+
+                    if (existing && existing.clientId === ws.clientId) {
+                        seatLocks.delete(key);
+                        if (!bookedSeats.has(ws.flightKey)) {
+                            bookedSeats.set(ws.flightKey, new Set());
+                        }
+                        bookedSeats.get(ws.flightKey).add(seatNumber);
+                        broadcastFlightState(ws.flightKey);
+                    }
+                }
+            });
+
+            ws.on('close', () => {
+                if (!ws.clientId) return;
+                const affectedFlights = new Set();
+                for (const [key, lock] of seatLocks.entries()) {
+                    if (lock.clientId === ws.clientId) {
+                        seatLocks.delete(key);
+                        affectedFlights.add(lock.flightKey);
+                    }
+                }
+                for (const flightKey of affectedFlights) {
+                    broadcastFlightState(flightKey);
+                }
+            });
+        });
+
+        server.listen(PORT, '0.0.0.0', () => {
             const host = require('os').networkInterfaces();
             const ips = Object.values(host)
                 .flat()

@@ -566,6 +566,99 @@
             padding: 8px 14px;
             cursor: pointer;
         }
+
+        .seat-modal {
+            position: fixed;
+            inset: 0;
+            background: var(--modal-overlay);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            padding: 18px;
+        }
+
+        .seat-modal-content {
+            background: var(--modal-bg);
+            color: var(--text-primary);
+            width: min(920px, 100%);
+            max-height: 92vh;
+            overflow: auto;
+            border-radius: 14px;
+            border: 1px solid var(--surface-border);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+            padding: 18px;
+        }
+
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .seat {
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            padding: 10px 4px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--surface-bg);
+            color: var(--text-primary);
+        }
+
+        .seat-standard { background: #d1fae5; color: #065f46; }
+        .seat-exit { background: #fee2e2; color: #991b1b; }
+        .seat-premium { background: #ede9fe; color: #4c1d95; }
+        .seat-selected { outline: 3px solid #f59e0b; }
+        .seat-locked,
+        .seat-unavailable {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #d1d5db;
+            color: #374151;
+        }
+
+        .seat-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 8px 0 12px;
+            font-size: 12px;
+        }
+
+        .seat-legend span {
+            border-radius: 999px;
+            padding: 5px 10px;
+            border: 1px solid transparent;
+        }
+
+        .seat-summary {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--surface-border);
+            background: var(--surface-muted);
+            font-size: 14px;
+        }
+
+        .baggage-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .checkout-actions {
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -596,6 +689,45 @@
                     <button class="upi-close" style="background:#dc3545;" onclick="closeUpiModal()">Close</button>
                 </div>
                 <p id="upiFeedback" style="margin-top:8px; font-size:0.9rem; color:#1a7f00; display:none"></p>
+            </div>
+        </div>
+
+        <div id="seatModal" class="seat-modal" onclick="closeSeatModal(event)">
+            <div class="seat-modal-content" onclick="event.stopPropagation()">
+                <h3 style="margin-bottom: 8px;">Select Seat and Extras</h3>
+                <p id="seatFlightInfo" style="color: var(--text-muted); font-size: 13px;"></p>
+                <p id="seatLockStatus" style="margin-top: 6px; color: var(--text-muted); font-size: 12px;">Connecting live seat lock service...</p>
+
+                <div class="seat-legend">
+                    <span class="seat-standard">Standard</span>
+                    <span class="seat-exit">Exit Row +25%</span>
+                    <span class="seat-premium">Extra Legroom +40%</span>
+                    <span class="seat-unavailable">Unavailable/Locked</span>
+                </div>
+
+                <div id="seatGrid" class="seat-grid"></div>
+
+                <div class="baggage-row">
+                    <label for="checkedBags">Checked Bags:</label>
+                    <select id="checkedBags" onchange="updateCheckoutTotals()">
+                        <option value="0">0</option>
+                        <option value="1">1 (+₹1200)</option>
+                        <option value="2">2 (+₹2400)</option>
+                        <option value="3">3 (+₹3600)</option>
+                    </select>
+
+                    <label style="display:flex; align-items:center; gap:6px;">
+                        <input type="checkbox" id="sportsEquipment" onchange="updateCheckoutTotals()">
+                        Sports Equipment (+₹2200)
+                    </label>
+                </div>
+
+                <div class="seat-summary" id="seatSummary"></div>
+
+                <div class="checkout-actions">
+                    <button class="upi-close" style="background:#6b7280; margin-top: 0;" onclick="closeSeatModal()">Cancel</button>
+                    <button class="upi-close" style="background:#16a34a; margin-top: 0;" onclick="proceedWithSeatBooking()">Continue to Payment</button>
+                </div>
             </div>
         </div>
 
@@ -687,6 +819,37 @@
     <script>
         // Set minimum date to today
         document.getElementById('departDate').min = new Date().toISOString().split('T')[0];
+
+        const getApiBaseUrl = () => {
+            if (window.apiConfig) {
+                return window.apiConfig.getAPIBase();
+            }
+            if (window.location.port === '5000') {
+                return '';
+            }
+            return `http://${window.location.hostname}:5000`;
+        };
+
+        const flightClientId = localStorage.getItem('travelator_flight_client_id') || `traveler-${Math.random().toString(36).slice(2, 10)}`;
+        localStorage.setItem('travelator_flight_client_id', flightClientId);
+
+        let seatSocket = null;
+        let seatSocketReady = false;
+        let seatLockTicker = null;
+        let currentSeatLocks = new Map();
+        let currentBookedSeats = new Set();
+
+        const checkoutSession = {
+            flightId: null,
+            airline: '',
+            basePrice: 0,
+            selectedSeat: null,
+            selectedSeatPrice: 0,
+            selectedSeatTier: 'standard',
+            flightKey: '',
+            details: null,
+            lockExpiresAt: null,
+        };
 
         // Mock flight data generator
         const airlines = ['Air India', 'IndiGo', 'Spice Jet', 'Vistara', 'GoAir', 'Emirates', 'Qatar Airways', 'Turkish Airlines'];
@@ -971,13 +1134,326 @@
                             seats: Number(this.getAttribute('data-seats') || 0)
                         };
                         try {
-                            bookFlight(id, airline, price, details);
+                            openSeatCheckout(id, airline, price, details);
                         } catch (err) {
                             console.error('Error booking flight:', err);
                             showAlert('Unable to complete booking', 'error');
                         }
                     });
                 });
+        }
+
+        function getFlightKey(details, airline) {
+            return [
+                details.origin || 'origin',
+                details.destination || 'destination',
+                details.travelDate || 'date',
+                details.departure || 'time',
+                airline || 'airline',
+            ].join('|');
+        }
+
+        function getSeatTier(rowNumber) {
+            if (rowNumber <= 2) return 'premium';
+            if (rowNumber <= 4) return 'exit';
+            return 'standard';
+        }
+
+        function getSeatPrice(basePrice, seatTier) {
+            if (seatTier === 'premium') return Math.round(basePrice * 0.4);
+            if (seatTier === 'exit') return Math.round(basePrice * 0.25);
+            return 0;
+        }
+
+        function getSeatClassName(seatTier) {
+            if (seatTier === 'premium') return 'seat-premium';
+            if (seatTier === 'exit') return 'seat-exit';
+            return 'seat-standard';
+        }
+
+        function ensureSeatSocket() {
+            if (seatSocket && seatSocket.readyState === WebSocket.OPEN) {
+                seatSocketReady = true;
+                return;
+            }
+
+            let wsUrl = '';
+            const apiBase = getApiBaseUrl();
+            if (apiBase) {
+                wsUrl = `${apiBase.replace(/^http/, 'ws')}/ws/seats`;
+            } else {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                wsUrl = `${protocol}//${window.location.host}/ws/seats`;
+            }
+
+            seatSocket = new WebSocket(wsUrl);
+            seatSocketReady = false;
+
+            seatSocket.onopen = () => {
+                seatSocketReady = true;
+                document.getElementById('seatLockStatus').textContent = 'Live seat locking connected.';
+                subscribeSeatChannel();
+            };
+
+            seatSocket.onmessage = (event) => {
+                let payload;
+                try {
+                    payload = JSON.parse(event.data);
+                } catch (error) {
+                    return;
+                }
+
+                if (payload.type === 'seat_state' && payload.flightKey === checkoutSession.flightKey) {
+                    currentSeatLocks = new Map();
+                    (payload.locks || []).forEach((lock) => {
+                        currentSeatLocks.set(lock.seatNumber, lock);
+                    });
+                    currentBookedSeats = new Set((payload.booked || []).map((item) => item.seatNumber));
+                    renderSeatMap();
+                    updateSeatCountdown();
+                }
+
+                if (payload.type === 'lock_acquired' && payload.seatNumber === checkoutSession.selectedSeat) {
+                    checkoutSession.lockExpiresAt = payload.expiresAt;
+                    updateSeatCountdown();
+                }
+
+                if (payload.type === 'lock_rejected') {
+                    showAlert(payload.reason || 'Seat lock failed', 'error');
+                    if (payload.seatNumber === checkoutSession.selectedSeat) {
+                        checkoutSession.selectedSeat = null;
+                        checkoutSession.selectedSeatPrice = 0;
+                        checkoutSession.selectedSeatTier = 'standard';
+                        checkoutSession.lockExpiresAt = null;
+                        renderSeatMap();
+                        updateCheckoutTotals();
+                    }
+                }
+            };
+
+            seatSocket.onclose = () => {
+                seatSocketReady = false;
+                document.getElementById('seatLockStatus').textContent = 'Live seat lock disconnected. Using local fallback.';
+            };
+        }
+
+        function subscribeSeatChannel() {
+            if (!seatSocketReady || !checkoutSession.flightKey) return;
+            seatSocket.send(
+                JSON.stringify({
+                    type: 'subscribe',
+                    clientId: flightClientId,
+                    flightKey: checkoutSession.flightKey,
+                })
+            );
+        }
+
+        function openSeatCheckout(flightId, airline, price, details = {}) {
+            checkoutSession.flightId = flightId;
+            checkoutSession.airline = airline;
+            checkoutSession.basePrice = Number(price);
+            checkoutSession.details = details;
+            checkoutSession.selectedSeat = null;
+            checkoutSession.selectedSeatPrice = 0;
+            checkoutSession.selectedSeatTier = 'standard';
+            checkoutSession.flightKey = getFlightKey(details, airline);
+            checkoutSession.lockExpiresAt = null;
+            currentSeatLocks = new Map();
+            currentBookedSeats = new Set();
+
+            document.getElementById('checkedBags').value = '0';
+            document.getElementById('sportsEquipment').checked = false;
+            document.getElementById('seatFlightInfo').textContent = `${airline} | ${details.origin || ''} -> ${details.destination || ''} | ${details.travelDate || ''}`;
+            document.getElementById('seatLockStatus').textContent = 'Connecting live seat lock service...';
+
+            ensureSeatSocket();
+            subscribeSeatChannel();
+            renderSeatMap();
+            updateCheckoutTotals();
+
+            document.getElementById('seatModal').style.display = 'flex';
+
+            if (seatLockTicker) clearInterval(seatLockTicker);
+            seatLockTicker = setInterval(updateSeatCountdown, 1000);
+        }
+
+        function closeSeatModal(event) {
+            if (event && event.target && event.target.id !== 'seatModal') return;
+            if (checkoutSession.selectedSeat && seatSocketReady) {
+                seatSocket.send(JSON.stringify({
+                    type: 'release_seat',
+                    seatNumber: checkoutSession.selectedSeat,
+                }));
+            }
+
+            checkoutSession.selectedSeat = null;
+            checkoutSession.selectedSeatPrice = 0;
+            checkoutSession.lockExpiresAt = null;
+            if (seatLockTicker) {
+                clearInterval(seatLockTicker);
+                seatLockTicker = null;
+            }
+            document.getElementById('seatModal').style.display = 'none';
+        }
+
+        function seatDeterministicUnavailable(seatNumber) {
+            const seed = `${checkoutSession.flightKey}|${seatNumber}`;
+            let sum = 0;
+            for (let i = 0; i < seed.length; i += 1) {
+                sum += seed.charCodeAt(i);
+            }
+            return sum % 17 === 0;
+        }
+
+        function renderSeatMap() {
+            const seatGrid = document.getElementById('seatGrid');
+            const cols = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let html = '';
+
+            for (let row = 1; row <= 8; row += 1) {
+                for (const col of cols) {
+                    const seatNumber = `${row}${col}`;
+                    const tier = getSeatTier(row);
+                    const seatClass = getSeatClassName(tier);
+                    const lock = currentSeatLocks.get(seatNumber);
+                    const isLockedByOther = lock && lock.clientId !== flightClientId && lock.expiresAt > Date.now();
+                    const isBooked = currentBookedSeats.has(seatNumber);
+                    const isUnavailable = isBooked || seatDeterministicUnavailable(seatNumber);
+                    const isSelected = checkoutSession.selectedSeat === seatNumber;
+
+                    const classes = ['seat', seatClass];
+                    if (isSelected) classes.push('seat-selected');
+                    if (isLockedByOther) classes.push('seat-locked');
+                    if (isUnavailable) classes.push('seat-unavailable');
+
+                    const disabled = isLockedByOther || isUnavailable;
+                    const seatPrice = getSeatPrice(checkoutSession.basePrice, tier);
+                    const tooltip = `${seatNumber} (${tier})${seatPrice > 0 ? ` +₹${seatPrice}` : ''}`;
+
+                    html += `<button type="button" class="${classes.join(' ')}" title="${tooltip}" ${disabled ? 'disabled' : ''} onclick="selectSeat('${seatNumber}')">${seatNumber}</button>`;
+                }
+            }
+
+            seatGrid.innerHTML = html;
+        }
+
+        function selectSeat(seatNumber) {
+            if (!confirm(`Lock seat ${seatNumber} for 5 minutes and continue to payment?`)) {
+                return;
+            }
+
+            const row = Number(seatNumber.replace(/[^0-9]/g, ''));
+            const tier = getSeatTier(row);
+            const seatPrice = getSeatPrice(checkoutSession.basePrice, tier);
+
+            const lock = currentSeatLocks.get(seatNumber);
+            if (lock && lock.clientId !== flightClientId && lock.expiresAt > Date.now()) {
+                showAlert('Seat is locked by another traveler.', 'error');
+                return;
+            }
+
+            if (currentBookedSeats.has(seatNumber)) {
+                showAlert('Seat is already booked.', 'error');
+                return;
+            }
+
+            const previousSeat = checkoutSession.selectedSeat;
+            checkoutSession.selectedSeat = seatNumber;
+            checkoutSession.selectedSeatPrice = seatPrice;
+            checkoutSession.selectedSeatTier = tier;
+
+            if (seatSocketReady) {
+                if (previousSeat && previousSeat !== seatNumber) {
+                    seatSocket.send(JSON.stringify({ type: 'release_seat', seatNumber: previousSeat }));
+                }
+                seatSocket.send(JSON.stringify({ type: 'lock_seat', seatNumber }));
+            }
+
+            renderSeatMap();
+            updateCheckoutTotals();
+        }
+
+        function updateSeatCountdown() {
+            if (!checkoutSession.selectedSeat || !checkoutSession.lockExpiresAt) return;
+            const remaining = checkoutSession.lockExpiresAt - Date.now();
+            if (remaining <= 0) {
+                document.getElementById('seatLockStatus').textContent = 'Seat hold expired. Please select again.';
+                checkoutSession.selectedSeat = null;
+                checkoutSession.selectedSeatPrice = 0;
+                checkoutSession.selectedSeatTier = 'standard';
+                checkoutSession.lockExpiresAt = null;
+                renderSeatMap();
+                updateCheckoutTotals();
+                return;
+            }
+
+            const mins = Math.floor(remaining / 60000);
+            const secs = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('seatLockStatus').textContent = `Seat ${checkoutSession.selectedSeat} locked for ${mins}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateCheckoutTotals() {
+            const checkedBags = Number(document.getElementById('checkedBags').value || '0');
+            const hasSportsEquipment = document.getElementById('sportsEquipment').checked;
+
+            const baggageCost = checkedBags * 1200;
+            const sportsCost = hasSportsEquipment ? 2200 : 0;
+            const total = checkoutSession.basePrice + checkoutSession.selectedSeatPrice + baggageCost + sportsCost;
+
+            const seatText = checkoutSession.selectedSeat
+                ? `${checkoutSession.selectedSeat} (${checkoutSession.selectedSeatTier})`
+                : 'Not selected';
+
+            document.getElementById('seatSummary').innerHTML = `
+                <div class="detail-row"><span>Base Fare:</span><strong>₹${checkoutSession.basePrice.toLocaleString()}</strong></div>
+                <div class="detail-row"><span>Seat:</span><strong>${seatText}</strong></div>
+                <div class="detail-row"><span>Seat Premium:</span><strong>₹${checkoutSession.selectedSeatPrice.toLocaleString()}</strong></div>
+                <div class="detail-row"><span>Checked Bags:</span><strong>₹${baggageCost.toLocaleString()}</strong></div>
+                <div class="detail-row"><span>Sports Equipment:</span><strong>₹${sportsCost.toLocaleString()}</strong></div>
+                <div class="detail-row" style="margin-top:8px; border-top:1px solid var(--surface-border); padding-top:8px;"><span>Total:</span><strong>₹${total.toLocaleString()}</strong></div>
+            `;
+        }
+
+        function proceedWithSeatBooking() {
+            if (!checkoutSession.selectedSeat) {
+                showAlert('Please select a seat before payment.', 'error');
+                return;
+            }
+
+            const checkedBags = Number(document.getElementById('checkedBags').value || '0');
+            const hasSportsEquipment = document.getElementById('sportsEquipment').checked;
+            const baggageCost = checkedBags * 1200;
+            const sportsCost = hasSportsEquipment ? 2200 : 0;
+            const total = checkoutSession.basePrice + checkoutSession.selectedSeatPrice + baggageCost + sportsCost;
+
+            const ok = confirm(
+                `Confirm seat ${checkoutSession.selectedSeat} and proceed to payment?\n\n` +
+                `Base Fare: ₹${checkoutSession.basePrice}\n` +
+                `Seat Premium: ₹${checkoutSession.selectedSeatPrice}\n` +
+                `Baggage: ₹${baggageCost + sportsCost}\n` +
+                `Total: ₹${total}`
+            );
+
+            if (!ok) {
+                return;
+            }
+
+            const details = {
+                ...checkoutSession.details,
+                seatNumber: checkoutSession.selectedSeat,
+                seatTier: checkoutSession.selectedSeatTier,
+                seatPremium: checkoutSession.selectedSeatPrice,
+                checkedBags,
+                sportsEquipment: hasSportsEquipment,
+                baggageCost,
+                sportsCost,
+                baseFare: checkoutSession.basePrice,
+                totalFare: total,
+                flightKey: checkoutSession.flightKey,
+            };
+
+            document.getElementById('seatModal').style.display = 'none';
+            bookFlight(checkoutSession.flightId, checkoutSession.airline, total, details);
         }
 
         function bookFlight(flightId, airline, price, details = {}) {
@@ -996,6 +1472,16 @@
                 stops: Number.isFinite(details.stops) ? details.stops : 0,
                 flightClass: details.flightClass || '',
                 seats: Number.isFinite(details.seats) ? details.seats : 0,
+                seatNumber: details.seatNumber || '',
+                seatTier: details.seatTier || 'standard',
+                seatPremium: Number(details.seatPremium || 0),
+                checkedBags: Number(details.checkedBags || 0),
+                sportsEquipment: Boolean(details.sportsEquipment),
+                baggageCost: Number(details.baggageCost || 0),
+                sportsCost: Number(details.sportsCost || 0),
+                baseFare: Number(details.baseFare || price),
+                totalFare: Number(details.totalFare || price),
+                flightKey: details.flightKey || '',
                 bookedAt: new Date().toISOString(),
                 paymentStatus: 'pending',
                 receiptNumber: null
@@ -1064,7 +1550,7 @@
 
         async function syncBookingToBackend(type, booking) {
             try {
-                const res = await fetch('http://localhost:3000/api/bookings', {
+                const res = await fetch(`${getApiBaseUrl()}/api/bookings`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type, booking })
@@ -1076,7 +1562,7 @@
         }
 
         async function verifyBookingBackend(type, id, receiptNumber, amount) {
-            const res = await fetch(`http://localhost:3000/api/bookings/${type}/${id}/verify`, {
+            const res = await fetch(`${getApiBaseUrl()}/api/bookings/${type}/${id}/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ receiptNumber, amount })
@@ -1113,6 +1599,18 @@
                         booking.paymentStatus = 'paid';
                         booking.receiptNumber = receipt.trim();
                         localStorage.setItem('flightBookings', JSON.stringify(bookings));
+                    }
+
+                    if (booking.paymentStatus === 'paid' && booking.seatNumber && seatSocketReady) {
+                        seatSocket.send(JSON.stringify({
+                            type: 'subscribe',
+                            clientId: flightClientId,
+                            flightKey: booking.flightKey || getFlightKey(booking, booking.airline),
+                        }));
+                        seatSocket.send(JSON.stringify({
+                            type: 'confirm_seat',
+                            seatNumber: booking.seatNumber,
+                        }));
                     }
                 }
 
@@ -1169,6 +1667,8 @@
                 const durationText = b.duration || 'N/A';
                 const stopsText = Number.isFinite(Number(b.stops)) ? (Number(b.stops) === 0 ? 'Non-stop' : `${Number(b.stops)} Stop(s)`) : 'N/A';
                 const classText = b.flightClass || 'N/A';
+                const seatText = b.seatNumber ? `${b.seatNumber} (${b.seatTier || 'standard'})` : 'N/A';
+                const baggageText = `${Number(b.checkedBags || 0)} bag(s)${b.sportsEquipment ? ' + sports equipment' : ''}`;
                 const receiptInfo = b.receiptNumber ? `<div class="detail-row"><span>Receipt:</span><strong>${b.receiptNumber}</strong></div>` : '';
                 html += `
                     <div class="flight-card">
@@ -1184,6 +1684,8 @@
                             <div class="detail-row"><span>Duration:</span><strong>${durationText}</strong></div>
                             <div class="detail-row"><span>Stops:</span><strong>${stopsText}</strong></div>
                             <div class="detail-row"><span>Class:</span><strong>${classText}</strong></div>
+                            <div class="detail-row"><span>Seat:</span><strong>${seatText}</strong></div>
+                            <div class="detail-row"><span>Baggage:</span><strong>${baggageText}</strong></div>
                             <div class="detail-row"><span>Booked At:</span><strong>${bookedAt}</strong></div>
                             <div class="detail-row" style="color:${statusColor};"><span>Status:</span><strong>${statusText}</strong></div>
                             ${receiptInfo}
@@ -1241,14 +1743,16 @@
 
         function cancelFlightBooking(id) {
             let bookings = JSON.parse(localStorage.getItem('flightBookings') || '[]');
-            const booking = bookings.find(b => b.id === id);
+            const bookingIndex = bookings.findIndex(b => b.id === id);
+            const booking = bookingIndex >= 0 ? bookings[bookingIndex] : null;
             if (!booking) {
                 showAlert('Booking not found', 'error');
                 return;
             }
-            booking.paymentStatus = 'cancelled';
+
+            bookings.splice(bookingIndex, 1);
             localStorage.setItem('flightBookings', JSON.stringify(bookings));
-            syncBookingToBackend('flight', booking);
+            deleteBookingFromBackend(booking.id);
 
             // Update globalStats conservatively
             const gsRaw = localStorage.getItem('globalStats');
@@ -1259,6 +1763,16 @@
 
             showAlert('Booking cancelled', 'success');
             renderFlightBookings();
+        }
+
+        async function deleteBookingFromBackend(id) {
+            try {
+                await fetch(`${getApiBaseUrl()}/api/bookings/${id}`, {
+                    method: 'DELETE',
+                });
+            } catch (error) {
+                console.warn('Backend delete error', error);
+            }
         }
 
         // Indian Destinations Database
@@ -1569,7 +2083,21 @@
                 document.body.classList.add('dark');
                 document.getElementById('themeToggle').textContent = 'Light';
             }
+
             displayDestinations();
+        });
+
+        window.addEventListener('beforeunload', () => {
+            try {
+                if (checkoutSession.selectedSeat && seatSocketReady) {
+                    seatSocket.send(JSON.stringify({
+                        type: 'release_seat',
+                        seatNumber: checkoutSession.selectedSeat,
+                    }));
+                }
+            } catch (error) {
+                // no-op
+            }
         });
     </script>
 </body>
