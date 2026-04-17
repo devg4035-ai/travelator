@@ -1,7 +1,13 @@
 (function () {
-  // Use same-origin when already on API port, otherwise use host IP with backend port
-  const defaultBaseUrl = window.location.port === "3000" ? "" : `http://${window.location.hostname}:3000`;
-  const apiBaseUrl = window.TRANSLATOR_API_BASE_URL || defaultBaseUrl;
+  // Use network-aware API config (falls back to smart detection if not available)
+  const getApiBaseUrl = () => {
+    if (window.apiConfig) {
+      return window.apiConfig.getAPIBase();
+    }
+    // Fallback if api-config.js hasn't loaded yet
+    const port = window.location.port;
+    return port === "3000" ? "" : `http://${window.location.hostname}:3000`;
+  };
 
   // Fallback translation dictionary (7 languages)
   const phrasesDictionary = {
@@ -22,7 +28,7 @@
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout
 
-      const response = await fetch(`${apiBaseUrl}/api/translate`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/translate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

@@ -2,16 +2,8 @@
 const AUTH_TOKEN_KEY = 'travelator_auth_token';
 const AUTH_USER_KEY = 'travelator_current_user';
 
-// Smart API base detection: uses current host when accessed from network
-const API_BASE = (() => {
-    if (window.location.protocol === 'file:') {
-        return 'http://localhost:3000';
-    }
-    if (window.location.port === '3000') {
-        return '';
-    }
-    return `http://${window.location.hostname}:3000`;
-})();
+// Use network-aware API config (defined in api-config.js)
+const getAPIBase = () => apiConfig ? apiConfig.getAPIBase() : 'http://localhost:3000';
 
 function isNetworkFetchError(error) {
     return (
@@ -91,7 +83,7 @@ async function handleLogin(e) {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/login`, {
+        const response = await fetch(`${getAPIBase()}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -156,7 +148,7 @@ async function handleSignup(e) {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/register`, {
+        const response = await fetch(`${getAPIBase()}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
