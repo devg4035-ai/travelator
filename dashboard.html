@@ -328,6 +328,24 @@
             white-space: nowrap;
         }
 
+        .booking-status.pending {
+            color: #92400e;
+            background: #ffedd5;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .booking-status.cancelled {
+            color: #991b1b;
+            background: #fee2e2;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .theme-btn {
             padding: 10px 14px;
             border: none;
@@ -506,15 +524,10 @@
 
                 <div class="recent-bookings">
                     <h3>Recent Bookings</h3>
-                    <div class="booking-list">
+                    <div id="recentBookingsList" class="booking-list">
                         <div class="booking-item">
-                            <span>New York Hotel</span>
-                            <span class="booking-date">Jan 15, 2026</span>
-                            <span class="booking-status confirmed">Confirmed</span>
-                        </div>
-                        <div class="booking-item">
-                            <span>NYC to LA Flight</span>
-                            <span class="booking-date">Jan 20, 2026</span>
+                            <span>No recent bookings yet</span>
+                            <span class="booking-date">-</span>
                             <span class="booking-status confirmed">Confirmed</span>
                         </div>
                     </div>
@@ -611,6 +624,90 @@
 
         // Update dashboard quick-stats from localStorage globalStats or compute from bookings
         (function() {
+            function formatBookingDate(isoOrDate) {
+                if (!isoOrDate) return '-';
+                const dateObj = new Date(isoOrDate);
+                if (Number.isNaN(dateObj.getTime())) return '-';
+                return dateObj.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: '2-digit',
+                    year: 'numeric'
+                });
+            }
+
+            function getBookingTimestamp(booking) {
+                if (booking && booking.bookedAt) {
+                    const ts = new Date(booking.bookedAt).getTime();
+                    if (!Number.isNaN(ts)) return ts;
+                }
+
+                if (booking && booking.id) {
+                    const maybeTs = Number(booking.id);
+                    if (Number.isFinite(maybeTs)) return maybeTs;
+                }
+
+                return 0;
+            }
+
+            function getBookingTitle(booking) {
+                if (booking.type === 'hotel') {
+                    return booking.name ? `${booking.name} Hotel` : 'Hotel Booking';
+                }
+
+                if (booking.type === 'flight') {
+                    if (booking.origin && booking.destination) {
+                        return `${booking.origin} to ${booking.destination} Flight`;
+                    }
+                    return booking.airline ? `${booking.airline} Flight` : 'Flight Booking';
+                }
+
+                return 'Booking';
+            }
+
+            function renderRecentBookings() {
+                const container = document.getElementById('recentBookingsList');
+                if (!container) return;
+
+                const hotels = JSON.parse(localStorage.getItem('hotelBookings') || '[]').map((booking) => ({
+                    ...booking,
+                    type: 'hotel'
+                }));
+                const flights = JSON.parse(localStorage.getItem('flightBookings') || '[]').map((booking) => ({
+                    ...booking,
+                    type: 'flight'
+                }));
+
+                const latestThree = [...hotels, ...flights]
+                    .sort((a, b) => getBookingTimestamp(b) - getBookingTimestamp(a))
+                    .slice(0, 3);
+
+                if (!latestThree.length) {
+                    container.innerHTML = `
+                        <div class="booking-item">
+                            <span>No recent bookings yet</span>
+                            <span class="booking-date">-</span>
+                            <span class="booking-status confirmed">Confirmed</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = latestThree
+                    .map((booking) => {
+                        const statusRaw = (booking.paymentStatus || 'confirmed').toString().trim();
+                        const statusText = statusRaw.charAt(0).toUpperCase() + statusRaw.slice(1);
+                        const statusClass = statusRaw.toLowerCase();
+                        return `
+                            <div class="booking-item">
+                                <span>${getBookingTitle(booking)}</span>
+                                <span class="booking-date">${formatBookingDate(booking.bookedAt)}</span>
+                                <span class="booking-status ${statusClass}">${statusText}</span>
+                            </div>
+                        `;
+                    })
+                    .join('');
+            }
+
             function computeFromLocal() {
                 const hotels = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
                 const flights = JSON.parse(localStorage.getItem('flightBookings') || '[]');
@@ -637,6 +734,7 @@
                 document.getElementById('stat-hotels').textContent = gs.hotels || 0;
                 document.getElementById('stat-flights').textContent = gs.flights || 0;
                 document.getElementById('stat-rewards').textContent = gs.rewards || 0;
+                renderRecentBookings();
             }
 
             // Refresh on load

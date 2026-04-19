@@ -1,6 +1,37 @@
 // Authentication System
 class AuthenticationManager {
     constructor() {
+        this.globalStorageKeys = new Set([
+            'travelator_auth_token',
+            'travelator_current_user',
+            'travelator_session',
+            'travelator_active_user_id',
+            'travelator_api_base',
+            'travelator_default_admin_email',
+            'travelator_default_admin_password',
+            'travelator_users',
+            'theme'
+        ]);
+
+        this.scopedStorageKeys = [
+            'hotelBookings',
+            'flightBookings',
+            'globalStats',
+            'travelator_profile_info',
+            'travelator_profile_phone',
+            'travelator_profile_prefs',
+            'travelator_zone_geofence_udid',
+            'travelator_zone_safe_category_set',
+            'selectedLanguage',
+            'travelator_flight_client_id'
+        ];
+
+        this.storagePrefix = 'travelator_user';
+        this.storagePatched = false;
+        this.rawStorage = null;
+
+        this.patchLocalStorageForUserContext();
+
         // Default admin credentials (stored in localStorage keys below if modified)
         this.defaultAdminEmail = localStorage.getItem('travelator_default_admin_email') || 'shiv@travelator.com';
         this.defaultAdminPassword = localStorage.getItem('travelator_default_admin_password') || 'password123';
@@ -13,6 +44,82 @@ class AuthenticationManager {
 
         // Ensure there is an admin/default user present with the configured credentials
         this.ensureAdminUser();
+
+        if (this.currentUser && (this.currentUser.id || this.currentUser.userId)) {
+            this.activateUserContext(this.currentUser.id || this.currentUser.userId);
+        }
+    }
+
+    patchLocalStorageForUserContext() {
+        if (this.storagePatched) return;
+
+        this.rawStorage = {
+            getItem: localStorage.getItem.bind(localStorage),
+            setItem: localStorage.setItem.bind(localStorage),
+            removeItem: localStorage.removeItem.bind(localStorage),
+        };
+
+        localStorage.getItem = (key) => {
+            const storageKey = this.resolveStorageKey(key);
+            return this.rawStorage.getItem(storageKey);
+        };
+
+        localStorage.setItem = (key, value) => {
+            const storageKey = this.resolveStorageKey(key);
+            return this.rawStorage.setItem(storageKey, value);
+        };
+
+        localStorage.removeItem = (key) => {
+            const storageKey = this.resolveStorageKey(key);
+            return this.rawStorage.removeItem(storageKey);
+        };
+
+        this.storagePatched = true;
+    }
+
+    getActiveUserIdRaw() {
+        if (!this.rawStorage) return null;
+        return this.rawStorage.getItem('travelator_active_user_id');
+    }
+
+    shouldScopeKey(key) {
+        if (!key || typeof key !== 'string') return false;
+        if (key.startsWith(`${this.storagePrefix}__`)) return false;
+        if (this.globalStorageKeys.has(key)) return false;
+        if (key.startsWith('login_lockout_') || key.startsWith('password_reset_')) return false;
+
+        const activeUserId = this.getActiveUserIdRaw();
+        if (!activeUserId) return false;
+
+        if (this.scopedStorageKeys.includes(key)) return true;
+        if (key.startsWith('travelator_')) return true;
+
+        return false;
+    }
+
+    resolveStorageKey(key) {
+        if (!this.shouldScopeKey(key)) return key;
+        const activeUserId = this.getActiveUserIdRaw();
+        return `${this.storagePrefix}__${activeUserId}__${key}`;
+    }
+
+    activateUserContext(userId) {
+        if (!userId || !this.rawStorage) return;
+        const normalizedUserId = String(userId);
+
+        this.rawStorage.setItem('travelator_active_user_id', normalizedUserId);
+
+        // One-time migration from legacy global keys to user-scoped keys for this user.
+        this.scopedStorageKeys.forEach((key) => {
+            const scopedKey = `${this.storagePrefix}__${normalizedUserId}__${key}`;
+            const existingScoped = this.rawStorage.getItem(scopedKey);
+            const legacyGlobal = this.rawStorage.getItem(key);
+
+            if (existingScoped === null && legacyGlobal !== null) {
+                this.rawStorage.setItem(scopedKey, legacyGlobal);
+                this.rawStorage.removeItem(key);
+            }
+        });
     }
 
     // Load users from localStorage
@@ -301,6 +408,9 @@ class AuthenticationManager {
         localStorage.removeItem('travelator_session');
         localStorage.removeItem('travelator_current_user');
         localStorage.removeItem('travelator_auth_token');
+        if (this.rawStorage) {
+            this.rawStorage.removeItem('travelator_active_user_id');
+        }
         this.currentUser = null;
     }
 

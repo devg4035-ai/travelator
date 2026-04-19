@@ -9,18 +9,22 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-gradient: linear-gradient(150deg, #eef4ff 0%, #f7fbff 52%, #ffffff 100%);
             --page-bg: transparent;
             --surface: #ffffff;
-            --text-color: #333333;
-            --muted-color: #666666;
-            --border-color: #dddddd;
+            --text-color: #1f2937;
+            --muted-color: #6b7280;
+            --border-color: #dbe4f0;
             --input-bg: #ffffff;
-            --btn-bg: #667eea;
-            --btn-hover: #764ba2;
-            --accent: #667eea;
-            --shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+            --btn-bg: #2563eb;
+            --btn-hover: #1d4ed8;
+            --accent: #2563eb;
+            --shadow: 0 16px 38px rgba(15, 23, 42, 0.1);
             --transition: all 0.3s ease;
+            --success-bg: #ecfdf3;
+            --success-text: #166534;
+            --warning-bg: #fff7ed;
+            --warning-text: #92400e;
         }
 
         body.dark {
@@ -31,9 +35,13 @@
             --muted-color: #cbd5e1;
             --border-color: #374151;
             --input-bg: #111827;
-            --btn-bg: #4f46e5;
-            --btn-hover: #4338ca;
+            --btn-bg: #3b82f6;
+            --btn-hover: #2563eb;
             --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --success-text: #86efac;
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --warning-text: #fcd34d;
         }
 
         * {
@@ -76,6 +84,14 @@
             font-weight: 700;
             color: var(--accent);
             letter-spacing: 0.3px;
+        }
+
+        .header-subtitle {
+            display: block;
+            margin-top: 2px;
+            font-size: 13px;
+            color: var(--muted-color);
+            font-weight: 500;
         }
 
         .header-surface > div:last-child {
@@ -123,11 +139,61 @@
         }
 
         .content-section h2 {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 700;
-            margin-bottom: 24px;
+            margin-bottom: 8px;
             color: var(--text-color);
             letter-spacing: 0.2px;
+        }
+
+        .section-subhead {
+            color: var(--muted-color);
+            margin-bottom: 22px;
+            font-size: 15px;
+        }
+
+        .progress-panel {
+            margin-bottom: 20px;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .progress-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            color: var(--muted-color);
+            font-weight: 700;
+        }
+
+        .progress-value {
+            font-size: 13px;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+            transition: width 0.35s ease;
         }
 
         .profile-container {
@@ -145,7 +211,7 @@
             gap: 20px;
             padding: 36px 28px;
             border-bottom: 1px solid var(--border-color);
-            background: linear-gradient(135deg, var(--accent) 0%, rgba(102, 126, 234, 0.1) 100%);
+            background: linear-gradient(130deg, rgba(37, 99, 235, 0.18) 0%, rgba(255, 255, 255, 0.15) 100%);
         }
 
         .profile-avatar {
@@ -169,9 +235,26 @@
         }
 
         .profile-info p {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--muted-color);
             margin: 4px 0;
+        }
+
+        .profile-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .badge {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(37, 99, 235, 0.2);
         }
 
         .profile-details {
@@ -197,24 +280,66 @@
         .detail-card h4 {
             font-size: 18px;
             font-weight: 700;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
             color: var(--text-color);
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-help {
+            color: var(--muted-color);
+            font-size: 13px;
+            margin-bottom: 10px;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 8px;
         }
 
         .form-group label {
             display: block;
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: var(--text-color);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.2px;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted-color);
+            margin-top: 6px;
+        }
+
+        .field-error {
+            min-height: 0;
+            margin-top: 2px;
+            font-size: 12px;
+            color: #dc2626;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .field-error:empty {
+            display: none;
+        }
+
+        .form-group input.invalid,
+        .form-group select.invalid,
+        .form-group textarea.invalid {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        }
+
+        .dirty-indicator {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted-color);
+            font-weight: 700;
+        }
+
+        .dirty-indicator.active {
+            color: var(--warning-text);
         }
 
         .form-group input,
@@ -266,6 +391,31 @@
             font-family: 'Nunito', sans-serif;
         }
 
+        .form-section {
+            margin-bottom: 8px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .form-section h5 {
+            font-size: 14px;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+        }
+
+        body.dark .form-section {
+            background: rgba(17, 24, 39, 0.5);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
         .preferences {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -308,11 +458,10 @@
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 6px;
             transition: var(--transition);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            letter-spacing: 0.3px;
         }
 
         .btn-save:hover {
@@ -323,6 +472,29 @@
 
         .btn-save:active {
             transform: translateY(0);
+        }
+
+        .status-message {
+            display: none;
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-message.success {
+            display: block;
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .status-message.warning {
+            display: block;
+            background: var(--warning-bg);
+            color: var(--warning-text);
+            border: 1px solid rgba(245, 158, 11, 0.35);
         }
 
         body.dark input,
@@ -375,12 +547,20 @@
                 padding: 16px;
             }
 
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
             .detail-card {
                 padding: 16px;
             }
 
             .content-section h2 {
                 font-size: 22px;
+                margin-bottom: 16px;
+            }
+
+            .section-subhead {
                 margin-bottom: 16px;
             }
 
@@ -426,7 +606,10 @@
 <body>
     <div class="container" style="max-width:1200px;">
         <header class="header-surface">
-            <div>My Profile</div>
+            <div>
+                My Profile
+                <span class="header-subtitle">Manage your account details and travel preferences</span>
+            </div>
             <div>
                 <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">Dark</button>
                 <button class="back-btn" onclick="goBackToDashboard()">Back to Dashboard</button>
@@ -437,6 +620,17 @@
             <!-- Profile Section (moved from dashboard.html) -->
             <section id="profile" class="content-section active">
                 <h2>My Profile</h2>
+                <p class="section-subhead">Keep your details current so bookings, alerts, and emergency support stay accurate.</p>
+
+                <div class="progress-panel">
+                    <div class="progress-row">
+                        <span class="progress-label">Profile completion</span>
+                        <span id="profileCompletionText" class="progress-value">0%</span>
+                    </div>
+                    <div class="progress-track" role="progressbar" aria-label="Profile completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div id="profileCompletionBar" class="progress-fill"></div>
+                    </div>
+                </div>
 
                 <div class="profile-container">
                     <div class="profile-header">
@@ -445,88 +639,129 @@
                             <h3 id="fullName">shiv</h3>
                             <p id="profileEmail">shiv@example.com</p>
                             <p id="profilePhone">+91 1234567890</p>
+                            <div class="profile-badges">
+                                <span class="badge">Verified traveler</span>
+                                <span class="badge">Profile sync enabled</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="profile-details">
                         <div class="detail-card">
-                            <h4>Account Settings</h4>
-                            <form id="profileForm">
-                                <div class="form-group">
-                                    <label>Full Name</label>
-                                    <input id="inputFullName" type="text" placeholder="shiv" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Email</label>
-                                    <input id="inputEmail" type="email" placeholder="shiv@example.com" value="" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Date of Birth</label>
-                                    <input id="inputDob" type="date" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Gender</label>
-                                    <select id="inputGender" required>
-                                        <option value="">Prefer not to say</option>
-                                        <option value="female">Female</option>
-                                        <option value="male">Male</option>
-                                        <option value="nonbinary">Non-binary</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Nationality</label>
-                                    <input id="inputNationality" type="text" placeholder="India" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Phone Number</label>
-                                    <div class="phone-input">
-                                        <select id="phoneCountryCode">
-                                            <option value="+91" selected>+91 (IN)</option>
-                                        </select>
-                                        <input type="tel" id="phoneNumber" inputmode="numeric" pattern="\d{10}" maxlength="10" placeholder="1234567890" value="" required>
+                            <h4>Account Information</h4>
+                            <p class="card-help">Fields marked as required help us maintain booking and contact accuracy.</p>
+                            <form id="profileForm" novalidate>
+                                <div class="form-section">
+                                    <h5>Basic information</h5>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="inputFullName">Full Name</label>
+                                            <input id="inputFullName" type="text" placeholder="Shiv" required>
+                                            <div class="field-error" id="error_inputFullName"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputEmail">Email</label>
+                                            <input id="inputEmail" type="email" placeholder="name@example.com" value="" required>
+                                            <div class="field-error" id="error_inputEmail"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="inputDob">Date of Birth</label>
+                                            <input id="inputDob" type="date" required>
+                                            <div class="field-error" id="error_inputDob"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputGender">Gender</label>
+                                            <select id="inputGender" required>
+                                                <option value="prefer_not">Prefer not to say</option>
+                                                <option value="female">Female</option>
+                                                <option value="male">Male</option>
+                                                <option value="nonbinary">Non-binary</option>
+                                            </select>
+                                            <div class="field-error" id="error_inputGender"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputNationality">Nationality</label>
+                                        <input id="inputNationality" type="text" placeholder="India" required>
+                                        <div class="field-error" id="error_inputNationality"></div>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Address</label>
-                                    <textarea id="inputAddress" rows="2" class="form-control" placeholder="Street, City, State, PIN"></textarea>
+
+                                <div class="form-section">
+                                    <h5>Contact and identity</h5>
+                                    <div class="form-group">
+                                        <label for="phoneNumber">Phone Number</label>
+                                        <div class="phone-input">
+                                            <select id="phoneCountryCode">
+                                                <option value="+91" selected>+91 (IN)</option>
+                                            </select>
+                                            <input type="tel" id="phoneNumber" inputmode="numeric" pattern="\d{10}" maxlength="10" placeholder="1234567890" value="" required>
+                                        </div>
+                                        <p class="hint">Use 10 digits without spaces or symbols.</p>
+                                        <div class="field-error" id="error_phoneNumber"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputAddress">Address</label>
+                                        <textarea id="inputAddress" rows="2" class="form-control" placeholder="Street, City, State, PIN"></textarea>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="inputPassport">Passport Number</label>
+                                            <input id="inputPassport" type="text" placeholder="Passport number" required>
+                                            <div class="field-error" id="error_inputPassport"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputPassportExpiry">Passport Expiry</label>
+                                            <input id="inputPassportExpiry" type="date">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Passport Number</label>
-                                    <input id="inputPassport" type="text" placeholder="Passport number" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Passport Expiry</label>
-                                    <input id="inputPassportExpiry" type="date">
-                                </div>
-                                <div class="form-group">
-                                    <label>Emergency Contact Name</label>
-                                    <input id="inputEmName" type="text" placeholder="Contact name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Emergency Contact Phone</label>
-                                    <input id="inputEmPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="0000000000" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Preferred Currency</label>
-                                    <select id="inputCurrency" required>
-                                        <option value="INR">INR</option>
-                                        <option value="USD">USD</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Timezone</label>
-                                    <input id="inputTimezone" type="text" placeholder="Asia/Kolkata" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Languages</label>
-                                    <input id="inputLanguages" type="text" placeholder="English, Hindi">
+
+                                <div class="form-section">
+                                    <h5>Emergency and travel defaults</h5>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="inputEmName">Emergency Contact Name</label>
+                                            <input id="inputEmName" type="text" placeholder="Contact name" required>
+                                            <div class="field-error" id="error_inputEmName"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputEmPhone">Emergency Contact Phone</label>
+                                            <input id="inputEmPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="0000000000" required>
+                                            <div class="field-error" id="error_inputEmPhone"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="inputCurrency">Preferred Currency</label>
+                                            <select id="inputCurrency" required>
+                                                <option value="INR">INR</option>
+                                                <option value="USD">USD</option>
+                                            </select>
+                                            <div class="field-error" id="error_inputCurrency"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputTimezone">Timezone</label>
+                                            <input id="inputTimezone" type="text" placeholder="Asia/Kolkata" required>
+                                            <div class="field-error" id="error_inputTimezone"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputLanguages">Languages</label>
+                                        <input id="inputLanguages" type="text" placeholder="English, Hindi">
+                                    </div>
                                 </div>
                                 <button type="submit" class="btn-save">Save Changes</button>
+                                <div id="saveStatus" class="status-message" aria-live="polite"></div>
+                                <div id="dirtyIndicator" class="dirty-indicator" aria-live="polite"></div>
                             </form>
                         </div>
 
                         <div class="detail-card">
                             <h4>Travel Preferences</h4>
+                            <p class="card-help">Select options to personalize hotel, flight, and package recommendations.</p>
                             <div class="preferences">
                                 <label><input type="checkbox" id="pref_luxury" checked> Luxury Hotels</label>
                                 <label><input type="checkbox" id="pref_direct" checked> Direct Flights</label>
@@ -545,6 +780,7 @@
             </section>
         </main>
     </div>
+    <script src="js/auth.js"></script>
     <script>
         function toggleTheme() {
             const body = document.body;
@@ -583,6 +819,169 @@
             const inputCurrency = document.getElementById('inputCurrency');
             const inputTimezone = document.getElementById('inputTimezone');
             const inputLanguages = document.getElementById('inputLanguages');
+            const saveStatus = document.getElementById('saveStatus');
+            const completionBar = document.getElementById('profileCompletionBar');
+            const completionText = document.getElementById('profileCompletionText');
+            const completionTrack = document.querySelector('.progress-track');
+            const dirtyIndicator = document.getElementById('dirtyIndicator');
+            const authToken = localStorage.getItem('travelator_auth_token');
+
+            let isDirty = false;
+            let isHydrating = true;
+
+            const requiredValidators = [
+                {
+                    input: inputFullName,
+                    errorId: 'error_inputFullName',
+                    validate: (value) => value.trim().length >= 2 ? '' : 'Enter at least 2 characters.'
+                },
+                {
+                    input: inputEmail,
+                    errorId: 'error_inputEmail',
+                    validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ? '' : 'Enter a valid email address.'
+                },
+                {
+                    input: inputDob,
+                    errorId: 'error_inputDob',
+                    validate: (value) => {
+                        if (!value) return 'Date of birth is required.';
+                        const selected = new Date(value);
+                        const today = new Date();
+                        return selected > today ? 'Date of birth cannot be in the future.' : '';
+                    }
+                },
+                {
+                    input: inputGender,
+                    errorId: 'error_inputGender',
+                    validate: (value) => value ? '' : 'Select a gender option.'
+                },
+                {
+                    input: inputNationality,
+                    errorId: 'error_inputNationality',
+                    validate: (value) => value.trim() ? '' : 'Nationality is required.'
+                },
+                {
+                    input: phoneNumberInput,
+                    errorId: 'error_phoneNumber',
+                    validate: (value) => value.replace(/\D/g, '').length === 10 ? '' : 'Phone number must be exactly 10 digits.'
+                },
+                {
+                    input: inputPassport,
+                    errorId: 'error_inputPassport',
+                    validate: (value) => value.trim() ? '' : 'Passport number is required.'
+                },
+                {
+                    input: inputEmName,
+                    errorId: 'error_inputEmName',
+                    validate: (value) => value.trim() ? '' : 'Emergency contact name is required.'
+                },
+                {
+                    input: inputEmPhone,
+                    errorId: 'error_inputEmPhone',
+                    validate: (value) => value.replace(/\D/g, '').length === 10 ? '' : 'Emergency phone must be exactly 10 digits.'
+                },
+                {
+                    input: inputCurrency,
+                    errorId: 'error_inputCurrency',
+                    validate: (value) => value ? '' : 'Select a preferred currency.'
+                },
+                {
+                    input: inputTimezone,
+                    errorId: 'error_inputTimezone',
+                    validate: (value) => value.trim() ? '' : 'Timezone is required.'
+                }
+            ];
+
+            function showStatus(type, message) {
+                if (!saveStatus) return;
+                saveStatus.className = 'status-message';
+                saveStatus.classList.add(type);
+                saveStatus.textContent = message;
+            }
+
+            function getApiBase() {
+                if (window.apiConfig && typeof window.apiConfig.getAPIBase === 'function') {
+                    return window.apiConfig.getAPIBase();
+                }
+                if (window.location.port === '5000') return '';
+                return `http://${window.location.hostname}:5000`;
+            }
+
+            function mapDbGenderToUi(gender) {
+                if (gender === 'prefer_not_to_say') return 'prefer_not';
+                return gender || 'prefer_not';
+            }
+
+            function mapUiGenderToDb(gender) {
+                if (gender === 'prefer_not') return 'prefer_not_to_say';
+                return gender || 'prefer_not_to_say';
+            }
+
+            function setDirtyState(dirty) {
+                isDirty = dirty;
+                if (!dirtyIndicator) return;
+                dirtyIndicator.className = 'dirty-indicator';
+                if (dirty) {
+                    dirtyIndicator.classList.add('active');
+                    dirtyIndicator.textContent = 'You have unsaved changes.';
+                } else {
+                    dirtyIndicator.textContent = 'All changes are saved.';
+                }
+            }
+
+            function validateSingle(fieldObj) {
+                const errorEl = document.getElementById(fieldObj.errorId);
+                const value = fieldObj.input.value || '';
+                const error = fieldObj.validate(value);
+
+                if (errorEl) {
+                    errorEl.textContent = error;
+                }
+
+                if (error) {
+                    fieldObj.input.classList.add('invalid');
+                    return false;
+                }
+
+                fieldObj.input.classList.remove('invalid');
+                return true;
+            }
+
+            function validateAll() {
+                let firstInvalid = null;
+                let validCount = 0;
+
+                requiredValidators.forEach((fieldObj) => {
+                    const valid = validateSingle(fieldObj);
+                    if (valid) {
+                        validCount += 1;
+                    } else if (!firstInvalid) {
+                        firstInvalid = fieldObj.input;
+                    }
+                });
+
+                return {
+                    isValid: validCount === requiredValidators.length,
+                    validCount,
+                    total: requiredValidators.length,
+                    firstInvalid
+                };
+            }
+
+            function updateCompletion() {
+                const result = validateAll();
+                const percent = Math.round((result.validCount / result.total) * 100);
+                if (completionBar) {
+                    completionBar.style.width = `${percent}%`;
+                }
+                if (completionText) {
+                    completionText.textContent = `${percent}%`;
+                }
+                if (completionTrack) {
+                    completionTrack.setAttribute('aria-valuenow', String(percent));
+                }
+                return result;
+            }
 
             // Load saved profile info (demo) if present
             const infoRaw = localStorage.getItem('travelator_profile_info');
@@ -608,6 +1007,9 @@
                 inputCurrency.value = info.currency || 'INR';
                 inputTimezone.value = info.timezone || '';
                 inputLanguages.value = info.languages || '';
+                if (!info.gender) {
+                    inputGender.value = 'prefer_not';
+                }
             } else if (savedPhone) {
                 document.getElementById('profilePhone').textContent = savedPhone;
                 const m = savedPhone.match(/^(\+\d+)\s+(.*)$/);
@@ -632,6 +1034,86 @@
                 if (el) el.checked = !!savedPrefs[key];
             });
 
+            // Load profile from database when authenticated.
+            (async function hydrateFromServer() {
+                if (!authToken) return;
+                try {
+                    const response = await fetch(`${getApiBase()}/api/users/me`, {
+                        headers: {
+                            Authorization: `Bearer ${authToken}`,
+                        },
+                    });
+
+                    if (!response.ok) return;
+                    const payload = await response.json();
+                    const data = payload?.data;
+                    if (!data) return;
+
+                    inputFullName.value = data.username || inputFullName.value;
+                    inputEmail.value = data.email || inputEmail.value;
+                    inputDob.value = data.dateOfBirth ? String(data.dateOfBirth).split('T')[0] : inputDob.value;
+                    inputGender.value = mapDbGenderToUi(data.gender);
+                    inputNationality.value = data.nationality || inputNationality.value;
+                    inputAddress.value = data.address || inputAddress.value;
+                    inputPassport.value = data.passportNumber || inputPassport.value;
+                    inputPassportExpiry.value = data.passportExpiry ? String(data.passportExpiry).split('T')[0] : inputPassportExpiry.value;
+                    inputEmName.value = data.emergencyContactName || inputEmName.value;
+                    inputEmPhone.value = (data.emergencyContactPhone || '').replace(/\D/g, '').slice(0, 10) || inputEmPhone.value;
+                    inputCurrency.value = data.currency || inputCurrency.value;
+                    inputTimezone.value = data.timezone || inputTimezone.value;
+                    inputLanguages.value = data.languages || inputLanguages.value;
+
+                    if (data.phone) {
+                        const m = String(data.phone).match(/^\s*(\+\d+)\s*(.*)$/);
+                        if (m) {
+                            const code = m[1];
+                            const digits = m[2].replace(/\D/g, '').slice(0, 10);
+                            if (Array.from(phoneCodeSelect.options).some(o => o.value === code)) {
+                                phoneCodeSelect.value = code;
+                            }
+                            phoneNumberInput.value = digits;
+                        } else {
+                            phoneNumberInput.value = String(data.phone).replace(/\D/g, '').slice(0, 10);
+                        }
+                    }
+
+                    if (data.travelPreferences) {
+                        const prefMap = {
+                            pref_luxury: 'luxuryHotels',
+                            pref_direct: 'directFlights',
+                            pref_budget: 'budgetFriendly',
+                            pref_vacation: 'vacationPackages',
+                            pref_insurance: 'travelInsurance',
+                            pref_vegetarian: 'vegetarianMeals',
+                            pref_window: 'windowSeat',
+                            pref_flexible: 'flexibleDates',
+                            pref_eco: 'ecoFriendly',
+                            pref_loyalty: 'loyaltyProgram',
+                        };
+
+                        Object.keys(prefMap).forEach((uiKey) => {
+                            const el = document.getElementById(uiKey);
+                            if (el) {
+                                const dbKey = prefMap[uiKey];
+                                el.checked = Boolean(data.travelPreferences[dbKey]);
+                            }
+                        });
+                    }
+
+                    document.getElementById('fullName').textContent = inputFullName.value || document.getElementById('fullName').textContent;
+                    document.getElementById('profileEmail').textContent = inputEmail.value || document.getElementById('profileEmail').textContent;
+                    const combinedPhone = phoneNumberInput.value ? `${phoneCodeSelect.value} ${phoneNumberInput.value}` : '';
+                    if (combinedPhone) {
+                        document.getElementById('profilePhone').textContent = combinedPhone;
+                    }
+
+                    updateCompletion();
+                    setDirtyState(false);
+                } catch (error) {
+                    // Keep local data as fallback when server profile fetch fails.
+                }
+            })();
+
             // Enforce numeric-only and max 10 digits on the phone input
             if (phoneNumberInput) {
                 phoneNumberInput.addEventListener('input', function () {
@@ -640,9 +1122,55 @@
                 });
             }
 
+            if (inputEmPhone) {
+                inputEmPhone.addEventListener('input', function () {
+                    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+                });
+            }
+
+            requiredValidators.forEach((fieldObj) => {
+                const eventName = fieldObj.input.tagName === 'SELECT' ? 'change' : 'input';
+                fieldObj.input.addEventListener(eventName, () => {
+                    validateSingle(fieldObj);
+                    updateCompletion();
+                    if (!isHydrating) {
+                        setDirtyState(true);
+                    }
+                });
+            });
+
+            ['change', 'input'].forEach((eventName) => {
+                form.addEventListener(eventName, () => {
+                    if (!isHydrating) {
+                        setDirtyState(true);
+                    }
+                });
+            });
+
+            updateCompletion();
+            setDirtyState(false);
+            isHydrating = false;
+
+            window.addEventListener('beforeunload', function (event) {
+                if (!isDirty) return;
+                event.preventDefault();
+                event.returnValue = '';
+            });
+
             if (form) {
-                form.addEventListener('submit', function (e) {
+                form.addEventListener('submit', async function (e) {
                     e.preventDefault();
+
+                    const validationResult = validateAll();
+                    updateCompletion();
+                    if (!validationResult.isValid) {
+                        showStatus('warning', 'Please correct the highlighted fields before saving.');
+                        if (validationResult.firstInvalid) {
+                            validationResult.firstInvalid.focus();
+                        }
+                        return;
+                    }
+
                     const name = inputFullName.value.trim();
                     const email = inputEmail.value.trim();
                     const dob = inputDob.value || '';
@@ -695,7 +1223,59 @@
                         prefsToSave[key] = !!(el && el.checked);
                     });
                     localStorage.setItem('travelator_profile_prefs', JSON.stringify(prefsToSave));
-                    alert('Profile updated (demo).');
+
+                    if (authToken) {
+                        const payload = {
+                            username: name,
+                            email: email,
+                            dateOfBirth: dob || null,
+                            gender: mapUiGenderToDb(gender),
+                            nationality: nationality,
+                            phone: combined,
+                            address: address,
+                            passportNumber: passportNumber,
+                            passportExpiry: passportExpiry || null,
+                            emergencyContactName: emName,
+                            emergencyContactPhone: emPhone,
+                            currency: currency,
+                            timezone: timezone,
+                            languages: languages,
+                            travelPreferences: {
+                                luxuryHotels: prefsToSave.pref_luxury,
+                                directFlights: prefsToSave.pref_direct,
+                                budgetFriendly: prefsToSave.pref_budget,
+                                vacationPackages: prefsToSave.pref_vacation,
+                                travelInsurance: prefsToSave.pref_insurance,
+                                vegetarianMeals: prefsToSave.pref_vegetarian,
+                                windowSeat: prefsToSave.pref_window,
+                                flexibleDates: prefsToSave.pref_flexible,
+                                ecoFriendly: prefsToSave.pref_eco,
+                                loyaltyProgram: prefsToSave.pref_loyalty,
+                            },
+                        };
+
+                        try {
+                            const response = await fetch(`${getApiBase()}/api/users/me`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${authToken}`,
+                                },
+                                body: JSON.stringify(payload),
+                            });
+
+                            if (!response.ok) {
+                                const errorPayload = await response.json().catch(() => ({}));
+                                throw new Error(errorPayload.message || 'Failed to save profile to database');
+                            }
+                        } catch (error) {
+                            showStatus('warning', `${error.message}. Saved locally only.`);
+                            return;
+                        }
+                    }
+
+                    showStatus('success', 'Profile updated successfully.');
+                    setDirtyState(false);
                 });
             }
         });

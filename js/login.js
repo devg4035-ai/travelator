@@ -109,21 +109,9 @@ async function handleLogin(e) {
             window.location.href = 'dashboard.html';
         }, 1200);
     } catch (error) {
-        if (isNetworkFetchError(error) && typeof authManager !== 'undefined') {
-            const fallbackResult = authManager.login(email, password, rememberMe);
-            if (fallbackResult.success && fallbackResult.user) {
-                persistAuth('local-demo-token', {
-                    _id: fallbackResult.user.id,
-                    username: fallbackResult.user.fullName,
-                    email: fallbackResult.user.email,
-                    createdAt: new Date().toISOString(),
-                }, rememberMe);
-                showAlert('Login successful (offline mode). Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1200);
-                return;
-            }
+        if (isNetworkFetchError(error)) {
+            showAlert('Server is unreachable. Please start backend to login.', 'error');
+            return;
         }
 
         showAlert(error.message || 'Unable to login right now', 'error');
@@ -179,33 +167,8 @@ async function handleSignup(e) {
             window.location.href = 'dashboard.html';
         }, 1200);
     } catch (error) {
-        if (isNetworkFetchError(error) && typeof authManager !== 'undefined') {
-            const fallbackResult = authManager.registerUser(
-                fullName,
-                email,
-                password,
-                confirmPassword
-            );
-
-            if (fallbackResult.success) {
-                const loginFallbackResult = authManager.login(email, password, false);
-                if (loginFallbackResult.success && loginFallbackResult.user) {
-                    persistAuth('local-demo-token', {
-                        _id: loginFallbackResult.user.id,
-                        username: loginFallbackResult.user.fullName,
-                        email: loginFallbackResult.user.email,
-                        createdAt: new Date().toISOString(),
-                    }, false);
-                    showAlert('Account created (offline mode). Redirecting...', 'success');
-                    document.getElementById('signupForm').reset();
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1200);
-                    return;
-                }
-            }
-
-            showAlert(fallbackResult.message || 'Unable to register right now', 'error');
+        if (isNetworkFetchError(error)) {
+            showAlert('Server is unreachable. Please start backend to create account.', 'error');
             return;
         }
 
@@ -237,6 +200,10 @@ function persistAuth(token, userData, rememberMe) {
             sessionTimeout: Date.now() + 60 * 60 * 1000,
         })
     );
+
+    if (typeof authManager !== 'undefined' && authManager && typeof authManager.activateUserContext === 'function') {
+        authManager.activateUserContext(normalizedUser.id);
+    }
 }
 
 // Handle password reset
