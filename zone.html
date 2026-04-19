@@ -219,6 +219,22 @@
             gap: 8px;
         }
 
+        .net-status {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #ecfeff;
+            color: #0e7490;
+            border: 1px solid #a5f3fc;
+        }
+
+        .net-status.offline {
+            background: #fff7ed;
+            color: #9a3412;
+            border-color: #fed7aa;
+        }
+
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -375,6 +391,7 @@
             <div class="status-bar">
                 <div id="liveStatus" class="status-pill paused"><span class="dot"></span><span>Paused</span></div>
                 <div id="lastUpdated" style="font-size:12px; color:var(--text-muted);">Last updated: Never</div>
+                <div id="netStatus" class="net-status">Online mode</div>
             </div>
         </div>
 
@@ -392,7 +409,50 @@
     <script src="./js/auth.js"></script>
     <script>
         const destinations = ['Mumbai', 'Delhi', 'Goa', 'Jaipur', 'Dubai', 'Singapore', 'London', 'Paris', 'Tokyo', 'New York'];
-        const weatherConditions = ['Sunny', 'Cloudy', 'Light Rain', 'Heavy Rain', 'Clear Night', 'Windy', 'Thunderstorm'];
+        const destinationCoordinates = {
+            Mumbai: { lat: 19.076, lon: 72.8777 },
+            Delhi: { lat: 28.6139, lon: 77.209 },
+            Goa: { lat: 15.2993, lon: 74.124 },
+            Jaipur: { lat: 26.9124, lon: 75.7873 },
+            Dubai: { lat: 25.2048, lon: 55.2708 },
+            Singapore: { lat: 1.3521, lon: 103.8198 },
+            London: { lat: 51.5072, lon: -0.1276 },
+            Paris: { lat: 48.8566, lon: 2.3522 },
+            Tokyo: { lat: 35.6762, lon: 139.6503 },
+            'New York': { lat: 40.7128, lon: -74.006 }
+        };
+
+        const weatherCodeMap = {
+            0: 'Clear sky',
+            1: 'Mainly clear',
+            2: 'Partly cloudy',
+            3: 'Overcast',
+            45: 'Fog',
+            48: 'Depositing rime fog',
+            51: 'Light drizzle',
+            53: 'Moderate drizzle',
+            55: 'Dense drizzle',
+            56: 'Freezing drizzle',
+            57: 'Dense freezing drizzle',
+            61: 'Slight rain',
+            63: 'Moderate rain',
+            65: 'Heavy rain',
+            66: 'Freezing rain',
+            67: 'Heavy freezing rain',
+            71: 'Slight snowfall',
+            73: 'Moderate snowfall',
+            75: 'Heavy snowfall',
+            77: 'Snow grains',
+            80: 'Rain showers',
+            81: 'Moderate rain showers',
+            82: 'Violent rain showers',
+            85: 'Slight snow showers',
+            86: 'Heavy snow showers',
+            95: 'Thunderstorm',
+            96: 'Thunderstorm with hail',
+            99: 'Severe thunderstorm with hail'
+        };
+
         const eventsCatalog = [
             'Food Festival',
             'Night Market',
@@ -405,6 +465,83 @@
 
         let alertsTimer = null;
         let alertSequence = 1;
+        let isOnline = navigator.onLine;
+
+        async function fetchJson(url) {
+            const response = await fetch(url, { signal: AbortSignal.timeout(7000) });
+            if (!response.ok) {
+                throw new Error(`Request failed (${response.status})`);
+            }
+            return response.json();
+        }
+
+        function setNetworkStatus(online) {
+            isOnline = online;
+            const net = document.getElementById('netStatus');
+            if (!net) return;
+
+            net.classList.remove('offline');
+            if (online) {
+                net.textContent = 'Online mode';
+                return;
+            }
+
+            net.classList.add('offline');
+            net.textContent = 'Offline mode';
+        }
+
+        async function getLiveWeather(destination) {
+            const coords = destinationCoordinates[destination];
+            if (!coords) {
+                throw new Error('Destination coordinates not found');
+            }
+
+            const weatherUrl =
+                `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}` +
+                `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m` +
+                `&timezone=auto`;
+
+            const aqiUrl =
+                `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${coords.lat}&longitude=${coords.lon}` +
+                `&current=us_aqi`;
+
+            const [weatherData, aqiData] = await Promise.all([
+                fetchJson(weatherUrl),
+                fetchJson(aqiUrl).catch(() => null)
+            ]);
+
+            const current = weatherData?.current;
+            if (!current) {
+                throw new Error('Weather data unavailable');
+            }
+
+            return {
+                temp: Number(current.temperature_2m),
+                feelsLike: Number(current.apparent_temperature),
+                humidity: Number(current.relative_humidity_2m),
+                windSpeed: Number(current.wind_speed_10m),
+                precipitation: Number(current.precipitation),
+                weatherCode: Number(current.weather_code),
+                condition: weatherCodeMap[Number(current.weather_code)] || 'Current conditions updated',
+                aqi: aqiData?.current?.us_aqi != null ? Number(aqiData.current.us_aqi) : null
+            };
+        }
+
+        function buildWeatherAdvisory(liveWeather) {
+            const advisories = [];
+
+            if (liveWeather.temp >= 36) advisories.push('Heat advisory: stay hydrated and avoid long sun exposure.');
+            if (liveWeather.windSpeed >= 30) advisories.push('Strong wind advisory: secure outdoor plans and check flight updates.');
+            if (liveWeather.precipitation >= 2) advisories.push('Rain alert: carry rain gear and expect slower traffic.');
+            if (liveWeather.aqi != null && liveWeather.aqi >= 120) advisories.push('Air quality alert: consider masks during long outdoor activities.');
+            if (liveWeather.weatherCode >= 95) advisories.push('Thunderstorm alert: monitor local warnings and avoid open areas.');
+
+            if (!advisories.length) {
+                advisories.push('No severe weather advisory right now.');
+            }
+
+            return advisories.join(' ');
+        }
 
         function formatTime(date) {
             return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -430,15 +567,33 @@
             return list[Math.floor(Math.random() * list.length)];
         }
 
-        function buildAlert(type, destination) {
+        async function buildAlert(type, destination) {
             if (type === 'weather') {
-                const condition = randomOf(weatherConditions);
-                const temp = Math.floor(Math.random() * 14) + 20;
-                return {
-                    type,
-                    headline: `${destination}: Weather update`,
-                    text: `${condition} expected with temperature around ${temp}°C. Carry essentials accordingly.`
-                };
+                if (!isOnline) {
+                    return {
+                        type,
+                        headline: `${destination}: Offline weather mode`,
+                        text: 'Internet is unavailable. Reconnect to fetch current temperature and live weather alerts.'
+                    };
+                }
+
+                try {
+                    const liveWeather = await getLiveWeather(destination);
+                    return {
+                        type,
+                        headline: `${destination}: Current weather ${liveWeather.temp}°C`,
+                        text:
+                            `${liveWeather.condition}. Feels like ${liveWeather.feelsLike}°C, ` +
+                            `humidity ${liveWeather.humidity}%, wind ${liveWeather.windSpeed} km/h. ` +
+                            `${buildWeatherAdvisory(liveWeather)}`
+                    };
+                } catch (error) {
+                    return {
+                        type,
+                        headline: `${destination}: Weather service unavailable`,
+                        text: 'Live weather could not be fetched right now. Please refresh again in a moment.'
+                    };
+                }
             }
 
             if (type === 'price') {
@@ -483,7 +638,7 @@
             }
         }
 
-        function emitAlertBatch() {
+        async function emitAlertBatch() {
             const selectedDestination = getSelectedDestination();
             const destinationsToUse = selectedDestination === 'all' ? destinations : [selectedDestination];
             const enabledTypes = getEnabledTypes();
@@ -493,9 +648,8 @@
             }
 
             const destination = randomOf(destinationsToUse);
-            enabledTypes.forEach((type) => {
-                pushAlert(buildAlert(type, destination));
-            });
+            const alerts = await Promise.all(enabledTypes.map((type) => buildAlert(type, destination)));
+            alerts.forEach((alert) => pushAlert(alert));
 
             updateLastUpdated();
         }
@@ -515,8 +669,10 @@
             if (alertsTimer) {
                 clearInterval(alertsTimer);
             }
-            emitAlertBatch();
-            alertsTimer = setInterval(emitAlertBatch, 12000);
+            emitAlertBatch().catch(() => {});
+            alertsTimer = setInterval(() => {
+                emitAlertBatch().catch(() => {});
+            }, 12000);
             setLiveStatus(true);
         }
 
@@ -529,7 +685,7 @@
         }
 
         function pushManualUpdate() {
-            emitAlertBatch();
+            emitAlertBatch().catch(() => {});
         }
 
         function initializeZoneAlerts() {
@@ -539,6 +695,19 @@
                 option.value = destination;
                 option.textContent = destination;
                 select.appendChild(option);
+            });
+
+            setNetworkStatus(navigator.onLine);
+
+            window.addEventListener('online', () => {
+                setNetworkStatus(true);
+                if (alertsTimer) {
+                    emitAlertBatch().catch(() => {});
+                }
+            });
+
+            window.addEventListener('offline', () => {
+                setNetworkStatus(false);
             });
         }
 
