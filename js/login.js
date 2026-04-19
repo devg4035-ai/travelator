@@ -35,8 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const resetForm = document.getElementById('resetForm');
     const signupPassword = document.getElementById('signupPassword');
     const authToggleLinks = document.querySelectorAll('.auth-toggle-link');
-    const apiBaseInput = document.getElementById('apiBaseInput');
-    const saveApiBaseBtn = document.getElementById('saveApiBaseBtn');
 
     // Initialize password strength indicator
     if (signupPassword) {
@@ -71,50 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (localStorage.getItem(AUTH_TOKEN_KEY)) {
         window.location.href = 'dashboard.html';
     }
-
-    if (apiBaseInput) {
-        apiBaseInput.value = localStorage.getItem('travelator_api_base') || '';
-    }
-
-    if (saveApiBaseBtn) {
-        saveApiBaseBtn.addEventListener('click', function() {
-            const entered = String(apiBaseInput?.value || '').trim().replace(/\/$/, '');
-            if (!entered) {
-                localStorage.removeItem('travelator_api_base');
-                if (window.apiConfig && typeof window.apiConfig.detectAPIBase === 'function') {
-                    window.apiConfig.detectAPIBase();
-                }
-                showAlert('API server URL cleared.', 'info');
-                return;
-            }
-
-            if (!/^https?:\/\//i.test(entered)) {
-                showAlert('API URL must start with http:// or https://', 'error');
-                return;
-            }
-
-            localStorage.setItem('travelator_api_base', entered);
-            if (window.apiConfig && typeof window.apiConfig.detectAPIBase === 'function') {
-                window.apiConfig.detectAPIBase();
-            }
-            showAlert('API server URL saved.', 'success');
-        });
-    }
 });
-
-function getValidatedAPIBase() {
-    const apiBase = String(getAPIBase() || '').trim().replace(/\/$/, '');
-
-    if (!apiBase && window.location.hostname.includes('github.io')) {
-        throw new Error('Set API Server URL first. GitHub Pages cannot host Node API.');
-    }
-
-    if (window.location.protocol === 'https:' && apiBase.startsWith('http://')) {
-        throw new Error('HTTPS page cannot call HTTP API (mixed content blocked). Use HTTPS backend URL.');
-    }
-
-    return apiBase;
-}
 
 // Handle login
 async function handleLogin(e) {
@@ -131,8 +86,7 @@ async function handleLogin(e) {
     }
 
     try {
-        const apiBase = getValidatedAPIBase();
-        const response = await fetch(`${apiBase}/login`, {
+        const response = await fetch(`${getAPIBase()}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -185,8 +139,7 @@ async function handleSignup(e) {
     }
 
     try {
-        const apiBase = getValidatedAPIBase();
-        const response = await fetch(`${apiBase}/register`, {
+        const response = await fetch(`${getAPIBase()}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
