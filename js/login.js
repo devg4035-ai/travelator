@@ -15,6 +15,10 @@ function isNetworkFetchError(error) {
     );
 }
 
+function getConfiguredBackendMessage() {
+    return 'Set TRAVELATOR_API_BASE_URL to your deployed backend URL, then redeploy GitHub Pages.';
+}
+
 async function parseResponsePayload(response) {
     const text = await response.text();
     if (!text) return {};
@@ -85,8 +89,14 @@ async function handleLogin(e) {
         return;
     }
 
+    const apiBase = getAPIBase();
+    if (!apiBase) {
+        showAlert(getConfiguredBackendMessage(), 'error');
+        return;
+    }
+
     try {
-        const response = await fetch(`${getAPIBase()}/login`, {
+        const response = await fetch(`${apiBase}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -138,8 +148,14 @@ async function handleSignup(e) {
         return;
     }
 
+    const apiBase = getAPIBase();
+    if (!apiBase) {
+        showAlert(getConfiguredBackendMessage(), 'error');
+        return;
+    }
+
     try {
-        const response = await fetch(`${getAPIBase()}/register`, {
+        const response = await fetch(`${apiBase}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

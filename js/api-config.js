@@ -61,6 +61,10 @@ class APIConfigManager {
         return fromWindow || fromStorage || '';
     }
 
+    hasConfiguredApiBase() {
+        return Boolean(this.getConfiguredProdApi());
+    }
+
     /**
      * Get the current API base URL
      */
@@ -186,6 +190,13 @@ class APIConfigManager {
         if (protocol === 'file:') {
             return `http://localhost:${this.defaultPort}`;
         }
+
+        // When no backend URL is configured, do not guess. Posting to the current
+        // static origin causes 405/HTML responses from GitHub Pages or other hosts.
+        if (!configuredProdApi) {
+            return '';
+        }
+
         if (port === this.defaultPort) {
             return '';
         }
