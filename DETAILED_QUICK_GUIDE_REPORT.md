@@ -25,7 +25,36 @@ It covers:
 
 ---
 
-## 3. Authentication Flow (Database-backed)
+## 3. What We Used for Building
+The following stack and tools were used to build and update this project:
+
+- Frontend:
+   - HTML5, CSS3, JavaScript (Vanilla JS)
+   - LocalStorage for client-side session and scoped UI state
+
+- Backend:
+   - Node.js + Express.js
+   - REST APIs for auth, profile, bookings, and utility actions
+
+- Database:
+   - MongoDB
+   - Mongoose (schema modeling and DB operations)
+
+- Authentication/Security:
+   - JWT token-based auth
+   - Password hashing with bcrypt
+
+- Real-time/Sync and Integrations:
+   - WebSocket (`ws`) for seat-lock flow in flights
+   - Azure service integration pattern via secure backend proxy routes
+
+- Developer Tooling:
+   - npm / nodemon
+   - Git + GitHub workflow files
+
+---
+
+## 4. Authentication Flow (Database-backed)
 - New users are created using backend API.
 - Login also validates using backend API.
 - If backend is down, signup/login now shows server-unreachable error (no local demo account creation).
@@ -38,7 +67,7 @@ Used endpoints:
 
 ---
 
-## 4. User-specific Website Reset/Isolation
+## 5. User-specific Website Reset/Isolation
 When a different user logs in or signs up:
 - App data is isolated per user context.
 - Data from previous users is not shown.
@@ -56,7 +85,7 @@ Result:
 
 ---
 
-## 5. Profile Behavior
+## 6. Profile Behavior
 Profile page now:
 - Loads profile from backend (`/api/users/me`) when authenticated.
 - Saves profile to backend (`PUT /api/users/me`) on submit.
@@ -70,7 +99,7 @@ UI/UX enhancements include:
 
 ---
 
-## 6. Recent Bookings Logic (Dashboard)
+## 7. Recent Bookings Logic (Dashboard)
 Recent Bookings section now:
 - Reads from both `hotelBookings` and `flightBookings`
 - Merges and sorts by latest booking timestamp
@@ -79,7 +108,7 @@ Recent Bookings section now:
 
 ---
 
-## 7. Flight Destination Images
+## 8. Flight Destination Images
 Flight booking destination cards use destination image mapping.
 Recent changes:
 - Replaced problematic image links
@@ -91,7 +120,7 @@ If an image still does not load:
 
 ---
 
-## 8. Common Troubleshooting
+## 9. Common Troubleshooting
 ### A. Signup/Login fails
 - Confirm backend server is running.
 - Confirm MongoDB connection is healthy.
@@ -110,7 +139,7 @@ If an image still does not load:
 
 ---
 
-## 9. Suggested Next Improvements
+## 10. Suggested Next Improvements
 1. Move booking data from localStorage to database collections per user.
 2. Add token refresh/session extension flow.
 3. Add image CDN/local asset fallback set for all destinations.
@@ -118,5 +147,5 @@ If an image still does not load:
 
 ---
 
-## 10. Summary
+## 11. Summary
 The project now supports real user registration/login in DB, user-isolated app state, backend-synced profile updates, dynamic recent bookings (top 3), and improved destination image handling.
