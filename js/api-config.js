@@ -273,5 +273,8 @@ class APIConfigManager {
     }
 }
 
-// Create global instance
+// Create global instance (used by login/signup and other API callers)
 const apiConfig = new APIConfigManager();
+if (typeof window !== 'undefined') {
+    window.apiConfig = apiConfig;
+}

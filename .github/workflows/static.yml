@@ -31,6 +31,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Generate runtime config
+        env:
+          TRAVELATOR_API_BASE_URL: ${{ secrets.TRAVELATOR_API_BASE_URL }}
+        run: |
+          printf 'window.TRAVELATOR_API_BASE_URL = "%s";\n' "$TRAVELATOR_API_BASE_URL" > js/runtime-config.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

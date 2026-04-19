@@ -110,7 +110,7 @@ async function handleLogin(e) {
         }, 1200);
     } catch (error) {
         if (isNetworkFetchError(error)) {
-            showAlert('Server is unreachable. Please start backend to login.', 'error');
+            showAlert('Server is unreachable. Set TRAVELATOR_API_BASE_URL to your public backend and ensure backend is running.', 'error');
             return;
         }
 
@@ -168,7 +168,7 @@ async function handleSignup(e) {
         }, 1200);
     } catch (error) {
         if (isNetworkFetchError(error)) {
-            showAlert('Server is unreachable. Please start backend to create account.', 'error');
+            showAlert('Server is unreachable. Set TRAVELATOR_API_BASE_URL to your public backend and ensure backend is running.', 'error');
             return;
         }
 

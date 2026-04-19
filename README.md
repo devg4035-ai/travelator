@@ -138,6 +138,30 @@ The translator currently uses mock data. To integrate a real translation API:
 2. Update the `translatorAPI.translate()` function in `js/translations.js`
 3. Add proper error handling and loading states
 
+## Public Backend Deployment
+
+To use Travelator from any network, deploy the Node.js backend publicly and point the frontend to that URL.
+
+### Backend requirements
+- Deploy `server.js` on a public host such as Render, Railway, Fly.io, Azure App Service, or a VPS.
+- Set environment variables directly on your backend host environment.
+- Configure `CORS_ORIGIN` to include your frontend domain(s).
+- Use MongoDB Atlas or another public MongoDB URI.
+
+### Frontend requirements
+- Set the GitHub secret `TRAVELATOR_API_BASE_URL` to your deployed backend URL.
+- Redeploy the GitHub Pages site after the secret is added.
+- Make sure the frontend URL is included in backend CORS.
+
+### Example
+- Frontend: `https://yourname.github.io/travelator`
+- Backend: `https://travelator-api.onrender.com`
+- `CORS_ORIGIN=https://yourname.github.io`
+- `TRAVELATOR_API_BASE_URL=https://travelator-api.onrender.com`
+
+### Result
+Signup and login will work from different networks because the browser talks to a public backend, not your local machine.
+
 ## Development Server
 
 To run a local development server:
