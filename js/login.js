@@ -19,6 +19,85 @@ function getConfiguredBackendMessage() {
     return 'Set TRAVELATOR_API_BASE_URL to your deployed backend URL, then redeploy GitHub Pages.';
 }
 
+function canUseLocalAuthFallback() {
+    const fallbackEnabled =
+        (typeof window !== 'undefined' && window.TRAVELATOR_ENABLE_LOCAL_AUTH_FALLBACK === true) ||
+        localStorage.getItem('travelator_enable_local_auth_fallback') === 'true';
+
+    if (!fallbackEnabled) {
+        return false;
+    }
+
+    return (
+        typeof authManager !== 'undefined' &&
+        authManager &&
+        typeof authManager.login === 'function' &&
+        typeof authManager.registerUser === 'function'
+    );
+}
+
+function buildLocalAuthPayload(localUser, email) {
+    return {
+        token: `local-demo-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+        data: {
+            _id: localUser?.id || Math.random().toString(36).slice(2, 11),
+            username: localUser?.fullName || 'Traveler',
+            email: localUser?.email || email,
+            createdAt: new Date().toISOString(),
+        },
+    };
+}
+
+function completeAuthSuccess(message) {
+    showAlert(message, 'success');
+    setTimeout(() => {
+        window.location.href = 'dashboard.html';
+    }, 1200);
+}
+
+function tryLocalLoginFallback({ email, password, rememberMe, reason }) {
+    if (!canUseLocalAuthFallback()) {
+        return false;
+    }
+
+    const localLogin = authManager.login(email, password, rememberMe);
+    if (!localLogin || !localLogin.success) {
+        return false;
+    }
+
+    const localPayload = buildLocalAuthPayload(localLogin.user, email);
+    persistAuth(localPayload.token, localPayload.data, rememberMe);
+    completeAuthSuccess(reason || 'Logged in using local mode.');
+    return true;
+}
+
+function tryLocalSignupFallback({ fullName, email, password }) {
+    if (!canUseLocalAuthFallback()) {
+        return { success: false };
+    }
+
+    const registerResult = authManager.registerUser(fullName, email, password, password);
+    if (!registerResult || !registerResult.success) {
+        return {
+            success: false,
+            message: registerResult?.message || 'Unable to create local account',
+        };
+    }
+
+    const localLogin = authManager.login(email, password, false);
+    if (!localLogin || !localLogin.success) {
+        return {
+            success: false,
+            message: localLogin?.message || 'Unable to login locally after signup',
+        };
+    }
+
+    const localPayload = buildLocalAuthPayload(localLogin.user, email);
+    persistAuth(localPayload.token, localPayload.data, false);
+    completeAuthSuccess('Account created and logged in using local mode.');
+    return { success: true };
+}
+
 async function parseResponsePayload(response) {
     const text = await response.text();
     if (!text) return {};
@@ -91,6 +170,14 @@ async function handleLogin(e) {
 
     const apiBase = getAPIBase();
     if (!apiBase) {
+        const fallbackWorked = tryLocalLoginFallback({
+            email,
+            password,
+            rememberMe,
+            reason: `${getConfiguredBackendMessage()} Logged in using local mode.`,
+        });
+        if (fallbackWorked) return;
+
         showAlert(getConfiguredBackendMessage(), 'error');
         return;
     }
@@ -114,12 +201,17 @@ async function handleLogin(e) {
         }
 
         persistAuth(result.token, result.data, rememberMe);
-        showAlert('Login successful! Redirecting...', 'success');
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 1200);
+        completeAuthSuccess('Login successful! Redirecting...');
     } catch (error) {
         if (isNetworkFetchError(error)) {
+            const fallbackWorked = tryLocalLoginFallback({
+                email,
+                password,
+                rememberMe,
+                reason: 'Server is unreachable. Logged in using local mode.',
+            });
+            if (fallbackWorked) return;
+
             showAlert('Server is unreachable. Set TRAVELATOR_API_BASE_URL to your public backend and ensure backend is running.', 'error');
             return;
         }
@@ -150,7 +242,7 @@ async function handleSignup(e) {
 
     const apiBase = getAPIBase();
     if (!apiBase) {
-        showAlert(getConfiguredBackendMessage(), 'error');
+        showAlert('Signup requires backend API. Set TRAVELATOR_API_BASE_URL so accounts are saved to MongoDB.', 'error');
         return;
     }
 
@@ -184,7 +276,7 @@ async function handleSignup(e) {
         }, 1200);
     } catch (error) {
         if (isNetworkFetchError(error)) {
-            showAlert('Server is unreachable. Set TRAVELATOR_API_BASE_URL to your public backend and ensure backend is running.', 'error');
+            showAlert('Server is unreachable. Signup was not saved. Ensure backend is running and MongoDB is connected.', 'error');
             return;
         }
 

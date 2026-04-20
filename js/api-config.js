@@ -191,8 +191,15 @@ class APIConfigManager {
             return `http://localhost:${this.defaultPort}`;
         }
 
-        // When no backend URL is configured, do not guess. Posting to the current
-        // static origin causes 405/HTML responses from GitHub Pages or other hosts.
+        // Auto-detect local development environments.
+        if (this.isLocalDevHost(hostname)) {
+            if (port === this.defaultPort) {
+                return '';
+            }
+            return `${protocol}//${hostname}:${this.defaultPort}`;
+        }
+
+        // For hosted/static origins, require explicit backend config to avoid bad guesses.
         if (!configuredProdApi) {
             return '';
         }
@@ -201,6 +208,30 @@ class APIConfigManager {
             return '';
         }
         return `${protocol}//${hostname}:${this.defaultPort}`;
+    }
+
+    isLocalDevHost(hostname) {
+        if (!hostname) return false;
+
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return true;
+        }
+
+        if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
+            return true;
+        }
+
+        if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
+            return true;
+        }
+
+        const match172 = hostname.match(/^172\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/);
+        if (match172) {
+            const second = Number(match172[1]);
+            return second >= 16 && second <= 31;
+        }
+
+        return false;
     }
 
     /**
